@@ -8,18 +8,18 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
+      background-color: #003366;
+      color: #000;
     }
 
     h1 {
       text-align: center;
+      color: white;
     }
 
     .search-container {
-      text-align: right;
       margin-bottom: 10px;
-      position: relative;
       max-width: 300px;
-      float: right;
     }
 
     .search-container input {
@@ -30,23 +30,15 @@
       border-radius: 5px;
     }
 
-    .search-container .search-icon {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 18px;
-      color: #888;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      background-color: white;
+      margin-top: 10px;
     }
 
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid black;
       padding: 12px;
       text-align: left;
     }
@@ -55,12 +47,11 @@
       background-color: #f2f2f2;
     }
 
-    select, button.action {
+    select, button.action, input.editable {
       padding: 6px;
       border: 1px solid #aaa;
       border-radius: 4px;
       background-color: #f9f9f9;
-      cursor: pointer;
     }
 
     .action-buttons button {
@@ -71,7 +62,7 @@
       margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #007bff;
+      background-color: #28a745;
       color: white;
       border: none;
       border-radius: 5px;
@@ -79,13 +70,7 @@
     }
 
     #downloadBtn:hover {
-      background-color: #0056b3;
-    }
-
-    .clearfix::after {
-      content: "";
-      clear: both;
-      display: table;
+      background-color: #218838;
     }
   </style>
 </head>
@@ -93,11 +78,8 @@
 
   <h1>Teacher Event Library</h1>
 
-  <div class="clearfix">
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Search..." />
-      <span class="search-icon">&#128269;</span>
-    </div>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search..." />
   </div>
 
   <table id="eventTable">
@@ -114,23 +96,23 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Example Event -->
       <tr>
-        <td>Ms. Johnson</td>
-        <td>Science 101</td>
-        <td>Intro to Biology</td>
+        <td><span class="view">Ms. Johnson</span><input class="edit editable" type="text" value="Ms. Johnson" style="display:none;" /></td>
+        <td><span class="view">Science 101</span><input class="edit editable" type="text" value="Science 101" style="display:none;" /></td>
+        <td><span class="view">Intro to Biology</span><input class="edit editable" type="text" value="Intro to Biology" style="display:none;" /></td>
         <td>
           <select>
             <option>25 students</option>
             <option>Download roster</option>
           </select>
         </td>
-        <td>Room 204</td>
-        <td>2025-04-24</td>
-        <td>MWF</td>
+        <td><span class="view">Room 204</span><input class="edit editable" type="text" value="Room 204" style="display:none;" /></td>
+        <td><span class="view">2025-04-24</span><input class="edit editable" type="date" value="2025-04-24" style="display:none;" /></td>
+        <td><span class="view">MWF</span><input class="edit editable" type="text" value="MWF" style="display:none;" /></td>
         <td class="action-buttons">
           <button class="action" onclick="editRow(this)">Edit</button>
           <button class="action" onclick="deleteRow(this)">Delete</button>
+          <button class="action save-btn" onclick="saveRow(this)" style="display:none;">Save</button>
         </td>
       </tr>
     </tbody>
@@ -139,39 +121,49 @@
   <button id="downloadBtn">Download CSV</button>
 
   <script>
-    const searchInput = document.getElementById("searchInput");
-    const table = document.getElementById("eventTable");
-    const rows = table.querySelector("tbody").getElementsByTagName("tr");
-
-    searchInput.addEventListener("keyup", function () {
-      const filter = searchInput.value.toLowerCase();
-      for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName("td");
-        let showRow = false;
-        for (let j = 0; j < cells.length - 1; j++) {
-          if (cells[j].innerText.toLowerCase().includes(filter)) {
-            showRow = true;
-            break;
-          }
-        }
-        rows[i].style.display = showRow ? "" : "none";
-      }
+    // SEARCH FUNCTION
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+      const filter = this.value.toLowerCase();
+      const rows = document.querySelectorAll("#eventTable tbody tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
     });
 
+    // DELETE ROW
     function deleteRow(button) {
       if (confirm("Are you sure you want to delete this event?")) {
-        const row = button.closest("tr");
-        row.remove();
+        button.closest("tr").remove();
       }
     }
 
+    // INLINE EDITING
     function editRow(button) {
-      alert("Edit form coming soon!"); // Replace with modal or redirect to edit form if needed
+      const row = button.closest("tr");
+      row.querySelectorAll(".view").forEach(el => el.style.display = "none");
+      row.querySelectorAll(".edit").forEach(el => el.style.display = "inline-block");
+      row.querySelector(".save-btn").style.display = "inline-block";
+      button.style.display = "none";
     }
 
+    function saveRow(button) {
+      const row = button.closest("tr");
+      const spans = row.querySelectorAll(".view");
+      const inputs = row.querySelectorAll(".edit");
+      spans.forEach((span, i) => {
+        span.textContent = inputs[i].value;
+        span.style.display = "inline";
+        inputs[i].style.display = "none";
+      });
+      row.querySelector(".save-btn").style.display = "none";
+      row.querySelector(".action").style.display = "inline-block";
+    }
+
+    // DOWNLOAD CSV
     document.getElementById("downloadBtn").addEventListener("click", function () {
       let csvContent = "data:text/csv;charset=utf-8,";
-      const rows = table.querySelectorAll("table tr");
+      const rows = document.querySelectorAll("table tr");
 
       rows.forEach(row => {
         const cols = row.querySelectorAll("td, th");
@@ -190,4 +182,4 @@
   </script>
 
 </body>
-</html>
+</html
