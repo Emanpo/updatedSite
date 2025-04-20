@@ -107,3 +107,9 @@ input[type="date"] {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+.school-logo {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+}
