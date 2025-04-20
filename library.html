@@ -2,33 +2,192 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Event Library</title>
+  <title>Teacher Event Library</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .search-container {
+      text-align: right;
+      margin-bottom: 10px;
+      position: relative;
+      max-width: 300px;
+      float: right;
+    }
+
+    .search-container input {
+      padding: 10px 35px 10px 12px;
+      width: 100%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .search-container .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    select, button.action {
+      padding: 6px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+
+    .action-buttons button {
+      margin-right: 5px;
+    }
+
+    #downloadBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #downloadBtn:hover {
+      background-color: #0056b3;
+    }
+
+    .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>My Event Library</h1>
 
-    <!-- Filter options -->
-    <input type="text" placeholder="Search Course..." />
-    <select>
-      <option>All Dates</option>
-      <option>Upcoming</option>
-      <option>Past</option>
-    </select><br /><br />
+  <h1>Teacher Event Library</h1>
 
-    <!-- Example card -->
-    <div class="class-item">
-      <p><strong>Course:</strong> Science 101</p>
-      <p><strong>Date:</strong> 2025-04-25</p>
-      <p><strong>Location:</strong> Room 204</p>
-      <p><strong>Recurring:</strong> Yes (M, W, F)</p>
-      <button class="btn">Edit</button>
-      <button class="btn">Delete</button>
+  <div class="clearfix">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <span class="search-icon">&#128269;</span>
     </div>
-
-    <a href="teacher-dashboard.html" class="btn">Back</a>
   </div>
+
+  <table id="eventTable">
+    <thead>
+      <tr>
+        <th>Teacher</th>
+        <th>Course</th>
+        <th>Description</th>
+        <th>Roster</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Recurring</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Example Event -->
+      <tr>
+        <td>Ms. Johnson</td>
+        <td>Science 101</td>
+        <td>Intro to Biology</td>
+        <td>
+          <select>
+            <option>25 students</option>
+            <option>Download roster</option>
+          </select>
+        </td>
+        <td>Room 204</td>
+        <td>2025-04-24</td>
+        <td>MWF</td>
+        <td class="action-buttons">
+          <button class="action" onclick="editRow(this)">Edit</button>
+          <button class="action" onclick="deleteRow(this)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button id="downloadBtn">Download CSV</button>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const table = document.getElementById("eventTable");
+    const rows = table.querySelector("tbody").getElementsByTagName("tr");
+
+    searchInput.addEventListener("keyup", function () {
+      const filter = searchInput.value.toLowerCase();
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let showRow = false;
+        for (let j = 0; j < cells.length - 1; j++) {
+          if (cells[j].innerText.toLowerCase().includes(filter)) {
+            showRow = true;
+            break;
+          }
+        }
+        rows[i].style.display = showRow ? "" : "none";
+      }
+    });
+
+    function deleteRow(button) {
+      if (confirm("Are you sure you want to delete this event?")) {
+        const row = button.closest("tr");
+        row.remove();
+      }
+    }
+
+    function editRow(button) {
+      alert("Edit form coming soon!"); // Replace with modal or redirect to edit form if needed
+    }
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      const rows = table.querySelectorAll("table tr");
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td, th");
+        const rowData = Array.from(cols).slice(0, 7).map(col => `"${col.innerText}"`).join(",");
+        csvContent += rowData + "\r\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "teacher_event_library.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+
 </body>
 </html>
