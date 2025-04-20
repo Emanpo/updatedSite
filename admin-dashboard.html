@@ -2,27 +2,193 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard</title>
+  <title>Admin Class Table</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #003366; /* deep blue */
+      color: #000;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+    }
+
+    .search-container {
+      margin-bottom: 10px;
+      max-width: 300px;
+    }
+
+    .search-container input {
+      padding: 10px 35px 10px 12px;
+      width: 100%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .search-container .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    select, button.action, input.editable {
+      padding: 6px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+
+    .action-buttons button {
+      margin-right: 5px;
+    }
+
+    #downloadBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #downloadBtn:hover {
+      background-color: #218838;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Admin Dashboard</h1>
 
-    <h2>All Classes</h2>
-    <div id="classList">
-      <!-- Example class item -->
-      <div class="class-item">
-        <p><strong>Teacher:</strong> Ms. Johnson</p>
-        <p><strong>Course:</strong> Math 101</p>
-        <p><strong>Date:</strong> 2025-04-20</p>
-        <button class="btn">Edit</button>
-        <button class="btn">Delete</button>
-      </div>
-    </div>
+  <h1>Admin Class Table</h1>
 
-    <a href="index.html" class="btn">Logout</a>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search..." />
   </div>
+
+  <table id="classTable">
+    <thead>
+      <tr>
+        <th>Teacher</th>
+        <th>Course</th>
+        <th>Description</th>
+        <th>Roster</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Recurring</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="view">Mr. Smith</span><input class="edit editable" type="text" value="Mr. Smith" style="display:none;" /></td>
+        <td><span class="view">Math 201</span><input class="edit editable" type="text" value="Math 201" style="display:none;" /></td>
+        <td><span class="view">Advanced Algebra</span><input class="edit editable" type="text" value="Advanced Algebra" style="display:none;" /></td>
+        <td>
+          <select>
+            <option>30 students</option>
+            <option>Download roster</option>
+          </select>
+        </td>
+        <td><span class="view">Room 105</span><input class="edit editable" type="text" value="Room 105" style="display:none;" /></td>
+        <td><span class="view">2025-04-22</span><input class="edit editable" type="date" value="2025-04-22" style="display:none;" /></td>
+        <td><span class="view">TTh</span><input class="edit editable" type="text" value="TTh" style="display:none;" /></td>
+        <td class="action-buttons">
+          <button class="action" onclick="editRow(this)">Edit</button>
+          <button class="action" onclick="deleteRow(this)">Delete</button>
+          <button class="action save-btn" onclick="saveRow(this)" style="display:none;">Save</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button id="downloadBtn">Download CSV</button>
+
+  <script>
+    // SEARCH FILTER
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+      const filter = this.value.toLowerCase();
+      const rows = document.querySelectorAll("#classTable tbody tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+
+    // DELETE FUNCTION
+    function deleteRow(button) {
+      if (confirm("Are you sure you want to delete this class?")) {
+        button.closest("tr").remove();
+      }
+    }
+
+    // EDIT/ SAVE INLINE
+    function editRow(button) {
+      const row = button.closest("tr");
+      row.querySelectorAll(".view").forEach(el => el.style.display = "none");
+      row.querySelectorAll(".edit").forEach(el => el.style.display = "inline-block");
+      row.querySelector(".save-btn").style.display = "inline-block";
+      button.style.display = "none";
+    }
+
+    function saveRow(button) {
+      const row = button.closest("tr");
+      const spans = row.querySelectorAll(".view");
+      const inputs = row.querySelectorAll(".edit");
+      spans.forEach((span, i) => {
+        span.textContent = inputs[i].value;
+        span.style.display = "inline";
+        inputs[i].style.display = "none";
+      });
+      row.querySelector(".save-btn").style.display = "none";
+      row.querySelector(".action").style.display = "inline-block";
+    }
+
+    // CSV EXPORT
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      const rows = document.querySelectorAll("table tr");
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td, th");
+        const rowData = Array.from(cols).slice(0, 7).map(col => `"${col.innerText}"`).join(",");
+        csvContent += rowData + "\r\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "admin_classes.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+
 </body>
 </html>
