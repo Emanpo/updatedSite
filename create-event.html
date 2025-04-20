@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Event</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Create New Event</h1>
+
+    <form id="createEventForm">
+      <input type="text" placeholder="Teacher" required /><br />
+      <input type="text" placeholder="Course" required /><br />
+      <textarea placeholder="Description" required></textarea><br />
+
+      <label for="roster">Roster:</label>
+      <select id="roster">
+        <option value="roster1">Roster 1</option>
+        <option value="roster2">Roster 2</option>
+      </select><br />
+
+      <input type="text" placeholder="Location" required /><br />
+      <input type="date" required /><br />
+
+      <label><input type="checkbox" id="recurringCheckbox" /> Recurring</label><br />
+
+      <div id="daySelection" style="display: none;">
+        <label><input type="checkbox" value="M" /> M</label>
+        <label><input type="checkbox" value="T" /> T</label>
+        <label><input type="checkbox" value="W" /> W</label>
+        <label><input type="checkbox" value="Th" /> Th</label>
+        <label><input type="checkbox" value="F" /> F</label>
+      </div><br />
+
+      <button type="submit" class="btn">Submit</button>
+      <button type="reset" class="btn">Clear</button>
+    </form>
+  </div>
+
+  <script>
+    const checkbox = document.getElementById("recurringCheckbox");
+    const daySelection = document.getElementById("daySelection");
+
+    checkbox.addEventListener("change", function () {
+      daySelection.style.display = this.checked ? "block" : "none";
+    });
+  </script>
+</body>
+</html>
