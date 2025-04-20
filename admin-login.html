@@ -1,26 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Login</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .search-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 50%;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    select {
+      padding: 6px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Admin Login</h1>
-    <form id="adminLoginForm">
-      <input type="text" placeholder="Username" required />
-      <input type="password" placeholder="Password" required />
-      <button type="submit" class="btn">Login</button>
-    </form>
+
+  <h1>Admin Dashboard - Classes</h1>
+
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by teacher, course, or location..." />
   </div>
 
+  <table id="classTable">
+    <thead>
+      <tr>
+        <th>Teacher</th>
+        <th>Course</th>
+        <th>Description</th>
+        <th>Roster</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Recurring</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Example row -->
+      <tr>
+        <td>Ms. Johnson</td>
+        <td>Biology 101</td>
+        <td>Introductory biology course</td>
+        <td>
+          <select>
+            <option>25 students</option>
+            <option>Download roster</option>
+          </select>
+        </td>
+        <td>Room 203</td>
+        <td>2025-04-24</td>
+        <td>MWF</td>
+      </tr>
+      <!-- More rows will be generated dynamically -->
+    </tbody>
+  </table>
+
   <script>
-    document.getElementById("adminLoginForm").addEventListener("submit", function(e) {
-      e.preventDefault(); // prevent page refresh
-      window.location.href = "admin-dashboard.html"; // redirect to admin dashboard
+    const searchInput = document.getElementById("searchInput");
+    const table = document.getElementById("classTable");
+    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+    searchInput.addEventListener("keyup", function () {
+      const filter = searchInput.value.toLowerCase();
+
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let showRow = false;
+
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].innerText.toLowerCase().indexOf(filter) > -1) {
+            showRow = true;
+            break;
+          }
+        }
+
+        rows[i].style.display = showRow ? "" : "none";
+      }
     });
   </script>
+
 </body>
 </html>
