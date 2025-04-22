@@ -2,17 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Teacher Dashboard</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .button-group {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Teacher Dashboard</h1>
 
-    <a href="create-event.html" class="btn">Create New Event</a>
-    <a href="library.html" class="btn">My Event Library</a>
-    <a href="index.html" class="btn">Logout</a>
+  <h1 style="text-align:center;">Teacher Dashboard</h1>
+
+  <div class="button-group">
+    <button class="btn" onclick="window.location.href='create-event-option.html'">Create New Event</button>
+    <button class="btn" onclick="window.location.href='teacher-event-library.html'">View Event Library</button>
   </div>
+
 </body>
 </html>

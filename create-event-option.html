@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Event Option</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    select {
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Select How to Create Your Event</h2>
+
+  <select id="eventOption" onchange="handleSelection()">
+    <option value="">-- Select an Option --</option>
+    <option value="new">Create a New Class</option>
+    <option value="template">Select a Created Class</option>
+  </select>
+
+  <div id="templateSelect" style="display: none; margin-top: 20px;">
+    <p>Choose a saved template:</p>
+    <select id="savedTemplates">
+      <option value="">-- Select a Template --</option>
+      <!-- Placeholder options, dynamically filled in future -->
+      <option value="Science101">Science 101</option>
+      <option value="Math202">Math 202</option>
+    </select>
+    <br><br>
+    <input type="text" placeholder="Enter Location" />
+    <input type="date" />
+    <br><br>
+    <button class="btn">Continue</button>
+  </div>
+
+  <script>
+    function handleSelection() {
+      const selection = document.getElementById("eventOption").value;
+      if (selection === "new") {
+        window.location.href = "create-event.html";
+      } else if (selection === "template") {
+        document.getElementById("templateSelect").style.display = "block";
+      }
+    }
+  </script>
+
+</body>
+</html>
