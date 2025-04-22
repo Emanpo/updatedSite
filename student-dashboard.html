@@ -2,24 +2,157 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      text-align: right;
+      position: relative;
+      max-width: 300px;
+    }
+
+    .search-container input {
+      padding: 10px 35px 10px 12px;
+      width: 100%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .search-container .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      color: black;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    #downloadBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #downloadBtn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>My Classes</h1>
 
-    <!-- Example view -->
-    <div class="class-item">
-      <p><strong>Course:</strong> Psychology 201</p>
-      <p><strong>Teacher:</strong> Dr. White</p>
-      <p><strong>Date:</strong> 2025-04-28</p>
-      <p><strong>Location:</strong> Building A</p>
-      <p><strong>Recurring:</strong> No</p>
+  <div class="top-bar">
+    <h1>Student Class Schedule</h1>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <span class="search-icon">&#128269;</span>
     </div>
-
-    <a href="index.html" class="btn">Logout</a>
   </div>
+
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>Course</th>
+        <th>Teacher</th>
+        <th>Description</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Recurring</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td contenteditable="true">Biology 101</td>
+        <td contenteditable="true">Ms. Johnson</td>
+        <td contenteditable="true">Intro to Biology</td>
+        <td contenteditable="true">Room 204</td>
+        <td contenteditable="true">2025-04-24</td>
+        <td contenteditable="true">MWF</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button id="downloadBtn">Download CSV</button>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const table = document.getElementById("studentTable");
+    const rows = table.querySelector("tbody").getElementsByTagName("tr");
+
+    searchInput.addEventListener("keyup", function () {
+      const filter = searchInput.value.toLowerCase();
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let showRow = false;
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].innerText.toLowerCase().includes(filter)) {
+            showRow = true;
+            break;
+          }
+        }
+        rows[i].style.display = showRow ? "" : "none";
+      }
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      const rows = table.querySelectorAll("table tr");
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td, th");
+        const rowData = Array.from(cols).map(col => `"${col.innerText}"`).join(",");
+        csvContent += rowData + "\r\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "student_class_schedule.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+
 </body>
 </html>
