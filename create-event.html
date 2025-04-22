@@ -2,54 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Event</title>
+  <title>Create New Event</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="text"], input[type="date"], select, input[type="file"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .days-checkboxes {
+      display: none;
+      gap: 10px;
+      margin-top: -10px;
+    }
+
+    .btn {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Create New Event</h1>
 
-    <form id="createEventForm">
-      <input type="text" placeholder="Teacher" required /><br />
-      <input type="text" placeholder="Course" required /><br />
-      <textarea placeholder="Description" required></textarea><br />
+  <h2>Create New Event</h2>
+  <form id="eventForm">
+    <label for="teacher">Teacher:</label>
+    <input type="text" id="teacher" required />
 
-      <label for="roster">Roster:</label>
-      <select id="roster">
-        <option value="roster1">Roster 1</option>
-        <option value="roster2">Roster 2</option>
-      </select><br />
+    <label for="course">Course:</label>
+    <input type="text" id="course" required />
 
-      <input type="text" placeholder="Location" required /><br />
-      <input type="date" required /><br />
+    <label for="description">Description:</label>
+    <input type="text" id="description" required />
 
-      <label><input type="checkbox" id="recurringCheckbox" /> Recurring</label><br />
+    <label for="roster">Upload Roster:</label>
+    <input type="file" id="roster" accept=".csv" required />
 
-      <div id="daySelection" style="display: none;">
-        <label><input type="checkbox" value="M" /> M</label>
-        <label><input type="checkbox" value="T" /> T</label>
-        <label><input type="checkbox" value="W" /> W</label>
-        <label><input type="checkbox" value="Th" /> Th</label>
-        <label><input type="checkbox" value="F" /> F</label>
-      </div><br />
+    <label for="location">Location:</label>
+    <input type="text" id="location" required />
 
-      <button type="submit" class="btn">Submit</button>
-      <button type="reset" class="btn">Clear</button>
-      <label>
-        <input type="checkbox" id="saveTemplate" />
-        Save this class as a template for future use
-      </label>
-    </form>
-  </div>
+    <label for="date">Date:</label>
+    <input type="date" id="date" required />
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="recurring" onchange="toggleDays()" />
+      <label for="recurring">Recurring</label>
+    </div>
+
+    <div class="days-checkboxes" id="daysCheckboxes">
+      <label><input type="checkbox" value="M"> M</label>
+      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="W"> W</label>
+      <label><input type="checkbox" value="Th"> Th</label>
+      <label><input type="checkbox" value="F"> F</label>
+    </div>
+
+    <label>
+      <input type="checkbox" id="saveTemplate" />
+      Save this class as a template for future use
+    </label>
+
+    <button type="submit" class="btn">Submit</button>
+    <button type="reset" class="btn" style="background-color: #6c757d;">Clear</button>
+  </form>
 
   <script>
-    const checkbox = document.getElementById("recurringCheckbox");
-    const daySelection = document.getElementById("daySelection");
-
-    checkbox.addEventListener("change", function () {
-      daySelection.style.display = this.checked ? "block" : "none";
-    });
+    function toggleDays() {
+      const days = document.getElementById("daysCheckboxes");
+      days.style.display = document.getElementById("recurring").checked ? "flex" : "none";
+    }
   </script>
 </body>
 </html>
