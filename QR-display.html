@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event QR Code</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #002244;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    img {
+      width: 200px;
+      height: 200px;
+      margin: 20px 0;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      color: white;
+      background-color: #0056b3;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .btn:hover {
+      background-color: #003f8a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QR Code for Your Event</h1>
+    <img id="qrImage" src="" alt="Event QR Code" />
+    <br />
+    <a id="downloadLink" class="btn" download="event_qrcode.png">Download QR Code</a>
+    <br />
+    <button class="btn" onclick="goToLibrary()">Go to Event Library</button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const template = params.get('template');
+    const location = params.get('location');
+    const date = params.get('date');
+
+    const qrData = `Template: ${template}\nLocation: ${location}\nDate: ${date}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+
+    document.getElementById('qrImage').src = qrUrl;
+    document.getElementById('downloadLink').href = qrUrl;
+
+    function goToLibrary() {
+      window.location.href = 'event-library.html';
+    }
+  </script>
+</body>
+</html>
