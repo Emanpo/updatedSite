@@ -1,72 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Create Event Option</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Select Event Creation Method</title>
   <style>
     body {
+      background-color: #003366;
       font-family: Arial, sans-serif;
+      margin: 0;
       padding: 20px;
-      text-align: center;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
 
-    select {
-      padding: 10px;
-      font-size: 16px;
-      margin-bottom: 20px;
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .option-container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 100%;
+      max-width: 500px;
+      align-items: center;
+      background-color: #002244;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
     .btn {
-      padding: 10px 20px;
+      padding: 14px 30px;
       font-size: 16px;
-      background-color: #007bff;
       color: white;
+      background-color: #0056b3;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      width: 100%;
+      max-width: 300px;
     }
 
     .btn:hover {
-      background-color: #0056b3;
+      background-color: #003f8a;
+      transform: scale(1.03);
+    }
+
+    .template-select {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    label {
+      color: white;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    select, input[type="text"], input[type="date"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .extra-fields {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-
-  <h2>Select How to Create Your Event</h2>
-
-  <select id="eventOption" onchange="handleSelection()">
-    <option value="">-- Select an Option --</option>
-    <option value="new">Create a New Class</option>
-    <option value="template">Select a Created Class</option>
-  </select>
-
-  <div id="templateSelect" style="display: none; margin-top: 20px;">
-    <p>Choose a saved template:</p>
-    <select id="savedTemplates">
-      <option value="">-- Select a Template --</option>
-      <!-- Placeholder options, dynamically filled in future -->
-      <option value="Science101">Science 101</option>
-      <option value="Math202">Math 202</option>
-    </select>
-    <br><br>
-    <input type="text" placeholder="Enter Location" />
-    <input type="date" />
-    <br><br>
-    <button class="btn">Continue</button>
+  <h1>Select How to Create Your Event</h1>
+  <div class="option-container">
+    <button class="btn" onclick="location.href='create-event.html'">Create a New Class</button>
+    <div class="template-select">
+      <label for="templateSelect">Choose a saved template:</label>
+      <select id="templateSelect" onchange="handleTemplateSelection()">
+        <option value="">-- Select a Created Class --</option>
+        <option value="template1">Template 1</option>
+        <option value="template2">Template 2</option>
+      </select>
+    </div>
+    <div class="extra-fields" id="extraFields">
+      <input type="text" placeholder="Enter Location" />
+      <input type="date" />
+      <button class="btn">Continue</button>
+    </div>
   </div>
-
   <script>
-    function handleSelection() {
-      const selection = document.getElementById("eventOption").value;
-      if (selection === "new") {
-        window.location.href = "create-event.html";
-      } else if (selection === "template") {
-        document.getElementById("templateSelect").style.display = "block";
+    function handleTemplateSelection() {
+      const templateSelect = document.getElementById('templateSelect');
+      const extraFields = document.getElementById('extraFields');
+      if (templateSelect.value !== '') {
+        extraFields.style.display = 'flex';
+      } else {
+        extraFields.style.display = 'none';
       }
     }
   </script>
-
 </body>
 </html>
