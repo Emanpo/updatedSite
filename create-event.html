@@ -137,15 +137,52 @@
   <script>
     const recurringCheckbox = document.getElementById('recurringCheckbox');
     const recurringDays = document.getElementById('recurringDays');
-
+  
     recurringCheckbox.addEventListener('change', function () {
       recurringDays.style.display = this.checked ? 'flex' : 'none';
     });
-
+  
     document.getElementById("createEventForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      // Handle form submission
-      alert("Event Created!");
+  
+      const teacher = document.getElementById("teacher").value;
+      const course = document.getElementById("course").value;
+      const description = document.getElementById("description").value;
+      const location = document.getElementById("location").value;
+      const date = document.getElementById("date").value;
+      const roster = document.getElementById("roster").files[0]?.name || "N/A";
+  
+      const recurring = recurringCheckbox.checked;
+      const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
+  
+      const event = {
+        id: Date.now(),
+        teacher,
+        course,
+        description,
+        location,
+        date,
+        roster,
+        recurring,
+        days
+      };
+  
+      // Save to localStorage (append to array)
+      const events = JSON.parse(localStorage.getItem("events") || "[]");
+      events.push(event);
+      localStorage.setItem("events", JSON.stringify(events));
+  
+      alert("Event created successfully!");
+  
+      // Redirect with query parameters (optional for qr-display.html)
+      const params = new URLSearchParams({
+        id: event.id,
+        course,
+        date,
+        location
+      });
+  
+      window.location.href = "qr-display.html?" + params.toString();
     });
   </script>
 
