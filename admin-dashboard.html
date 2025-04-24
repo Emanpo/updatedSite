@@ -94,7 +94,8 @@
       background-color: #218838;
     }
 
-    #eventForm {
+    #eventForm,
+    #editModal {
       display: none;
       margin: 20px 0;
       background-color: white;
@@ -104,7 +105,9 @@
     }
 
     #eventForm input,
-    #eventForm select {
+    #editModal input,
+    #eventForm select,
+    #editModal select {
       display: block;
       margin-bottom: 10px;
       width: 100%;
@@ -114,16 +117,14 @@
   </style>
 </head>
 <body>
-
   <div class="top-bar">
     <h1>Admin Class Table</h1>
     <div class="search-container">
       <input type="text" id="searchInput" placeholder="Search..." />
-      <span class="search-icon">&#128269;</span>
+      <span class="search-icon">🔍</span>
     </div>
   </div>
 
-  <!-- Hidden Event Form -->
   <form id="eventForm" onsubmit="submitEvent(event)">
     <input type="text" id="teacher" placeholder="Teacher" required />
     <input type="text" id="course" placeholder="Course" required />
@@ -154,7 +155,21 @@
   <button id="addEventBtn">Add Event</button>
   <button id="downloadBtn">Download CSV</button>
 
+  <!-- Edit Modal -->
+  <div id="editModal">
+    <input type="text" id="editTeacher" required />
+    <input type="text" id="editCourse" required />
+    <input type="text" id="editDescription" required />
+    <input type="text" id="editRoster" required />
+    <input type="text" id="editLocation" required />
+    <input type="date" id="editDate" required />
+    <input type="text" id="editRecurring" required />
+    <button onclick="saveEdit()">Save Changes</button>
+  </div>
+
   <script>
+    let editRowRef = null;
+
     document.getElementById("addEventBtn").addEventListener("click", () => {
       const form = document.getElementById("eventForm");
       form.style.display = form.style.display === "none" ? "block" : "none";
@@ -162,7 +177,6 @@
 
     function submitEvent(e) {
       e.preventDefault();
-
       const teacher = document.getElementById("teacher").value;
       const course = document.getElementById("course").value;
       const description = document.getElementById("description").value;
@@ -176,12 +190,7 @@
         <td>${teacher}</td>
         <td>${course}</td>
         <td>${description}</td>
-        <td>
-          <select>
-            <option>${roster}</option>
-            <option>Download roster</option>
-          </select>
-        </td>
+        <td><select><option>${roster}</option><option>Download roster</option></select></td>
         <td>${location}</td>
         <td>${date}</td>
         <td>${recurring}</td>
@@ -190,14 +199,32 @@
           <button class="action" onclick="deleteRow(this)">Delete</button>
         </td>
       `;
-
       document.querySelector("#adminTable tbody").appendChild(row);
       document.getElementById("eventForm").reset();
       document.getElementById("eventForm").style.display = "none";
     }
 
     function editRow(button) {
-      alert("This would open an editable form.");
+      editRowRef = button.closest("tr");
+      document.getElementById("editTeacher").value = editRowRef.cells[0].innerText;
+      document.getElementById("editCourse").value = editRowRef.cells[1].innerText;
+      document.getElementById("editDescription").value = editRowRef.cells[2].innerText;
+      document.getElementById("editRoster").value = editRowRef.cells[3].innerText.split("\n")[0];
+      document.getElementById("editLocation").value = editRowRef.cells[4].innerText;
+      document.getElementById("editDate").value = editRowRef.cells[5].innerText;
+      document.getElementById("editRecurring").value = editRowRef.cells[6].innerText;
+      document.getElementById("editModal").style.display = "block";
+    }
+
+    function saveEdit() {
+      editRowRef.cells[0].innerText = document.getElementById("editTeacher").value;
+      editRowRef.cells[1].innerText = document.getElementById("editCourse").value;
+      editRowRef.cells[2].innerText = document.getElementById("editDescription").value;
+      editRowRef.cells[3].innerHTML = `<select><option>${document.getElementById("editRoster").value}</option><option>Download roster</option></select>`;
+      editRowRef.cells[4].innerText = document.getElementById("editLocation").value;
+      editRowRef.cells[5].innerText = document.getElementById("editDate").value;
+      editRowRef.cells[6].innerText = document.getElementById("editRecurring").value;
+      document.getElementById("editModal").style.display = "none";
     }
 
     function deleteRow(button) {
@@ -209,7 +236,6 @@
     document.getElementById("searchInput").addEventListener("keyup", function () {
       const filter = this.value.toLowerCase();
       const rows = document.querySelectorAll("#adminTable tbody tr");
-
       rows.forEach(row => {
         const text = row.innerText.toLowerCase();
         row.style.display = text.includes(filter) ? "" : "none";
@@ -219,13 +245,11 @@
     document.getElementById("downloadBtn").addEventListener("click", function () {
       let csvContent = "data:text/csv;charset=utf-8,";
       const rows = document.querySelectorAll("table tr");
-
       rows.forEach(row => {
         const cols = row.querySelectorAll("td, th");
         const rowData = Array.from(cols).slice(0, 7).map(col => `"${col.innerText}"`).join(",");
         csvContent += rowData + "\r\n";
       });
-
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -235,6 +259,5 @@
       document.body.removeChild(link);
     });
   </script>
-
 </body>
 </html>
