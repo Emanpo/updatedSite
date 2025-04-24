@@ -1,129 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Select Event Creation Method</title>
+  <meta charset="UTF-8" />
+  <title>Create New Event</title>
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
-      background-color: #003366;
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      background-color: #002D74;
+      padding: 40px;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 40px;
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    .option-container {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-      width: 100%;
-      max-width: 500px;
-      align-items: center;
-      background-color: #002244;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-
-    .btn {
-      padding: 14px 30px;
-      font-size: 16px;
+      margin-bottom: 30px;
       color: white;
-      background-color: #0056b3;
-      border: none;
+    }
+
+    .event-form-container {
+      background-color: #fff;
+      padding: 30px;
+      max-width: 600px;
+      margin: 0 auto;
       border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-      width: 100%;
-      max-width: 300px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .btn:hover {
-      background-color: #003f8a;
-      transform: scale(1.03);
-    }
-
-    .template-select {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-      text-align: center;
+    .form-group {
+      margin-bottom: 20px;
     }
 
     label {
-      color: white;
-      font-size: 18px;
-      font-weight: 500;
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
     }
 
-    select, input[type="text"], input[type="date"] {
+    input[type="text"],
+    input[type="date"],
+    select,
+    input[type="file"] {
+      width: 100%;
       padding: 10px;
       font-size: 16px;
-      border-radius: 6px;
       border: 1px solid #ccc;
-      width: 100%;
-      max-width: 300px;
+      border-radius: 4px;
     }
 
-    .extra-fields {
-      display: none;
-      flex-direction: column;
-      align-items: center;
+    .checkbox-group {
+      display: flex;
       gap: 10px;
       margin-top: 10px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    .clear-btn {
+      background-color: #007bff;
     }
   </style>
 </head>
 <body>
-  <h1>Select How to Create Your Event</h1>
-  <div class="option-container">
-    <button class="btn" onclick="location.href='create-event.html'">Create a New Class</button>
-    <div class="template-select">
-      <label for="templateSelect">Choose a saved template:</label>
-      <select id="templateSelect" onchange="handleTemplateSelection()">
-        <option value="">-- Select a Created Class --</option>
-        <option value="template1">Template 1</option>
-        <option value="template2">Template 2</option>
-      </select>
-    </div>
-    <div class="extra-fields" id="extraFields">
-      <input type="text" id="eventLocation" placeholder="Enter Location" />
-      <input type="date" id="eventDate" />
-      <button class="btn" onclick="goToQRCodePage()">Continue</button>
-    </div>
+
+  <h1>Create New Event</h1>
+
+  <div class="event-form-container">
+    <form id="createEventForm">
+      <div class="form-group">
+        <label for="teacher">Teacher</label>
+        <input type="text" id="teacher" name="teacher" required />
+      </div>
+
+      <div class="form-group">
+        <label for="course">Course</label>
+        <input type="text" id="course" name="course" required />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input type="text" id="description" name="description" />
+      </div>
+
+      <div class="form-group">
+        <label for="roster">Upload Roster (CSV)</label>
+        <input type="file" id="roster" name="roster" accept=".csv" required />
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" required />
+      </div>
+
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="recurringCheckbox" />
+          Recurring
+        </label>
+        <div id="recurringDays" class="checkbox-group" style="display: none;">
+          <label><input type="checkbox" name="days" value="Mon"> M</label>
+          <label><input type="checkbox" name="days" value="Tue"> T</label>
+          <label><input type="checkbox" name="days" value="Wed"> W</label>
+          <label><input type="checkbox" name="days" value="Thu"> T</label>
+          <label><input type="checkbox" name="days" value="Fri"> F</label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">Submit</button>
+        <button type="reset" class="clear-btn">Clear</button>
+      </div>
+    </form>
   </div>
 
   <script>
-    function handleTemplateSelection() {
-      const templateSelect = document.getElementById('templateSelect');
-      const extraFields = document.getElementById('extraFields');
-      extraFields.style.display = templateSelect.value !== '' ? 'flex' : 'none';
-    }
+    const recurringCheckbox = document.getElementById('recurringCheckbox');
+    const recurringDays = document.getElementById('recurringDays');
 
-    function goToQRCodePage() {
-      const template = document.getElementById('templateSelect').value;
-      const location = document.getElementById('eventLocation').value;
-      const date = document.getElementById('eventDate').value;
-      const params = new URLSearchParams({
-        template,
-        location,
-        date
-      });
-      window.location.href = 'qr-display.html?' + params.toString();
-    }
+    recurringCheckbox.addEventListener('change', function () {
+      recurringDays.style.display = this.checked ? 'flex' : 'none';
+    });
+
+    document.getElementById("createEventForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      // Handle form submission
+      alert("Event Created!");
+    });
   </script>
+
 </body>
 </html>
