@@ -75,6 +75,20 @@
     .clear-btn {
       background-color: #007bff;
     }
+
+    .qr-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 40px;
+      color: white;
+    }
+
+    .qr-section img {
+      width: 200px;
+      height: 200px;
+    }
   </style>
 </head>
 <body>
@@ -134,6 +148,13 @@
     </form>
   </div>
 
+  <div class="qr-section" id="qrSection">
+    <h2>QR Code for Your Event</h2>
+    <img id="qrCode" src="" alt="QR Code" />
+    <a id="downloadLink" class="submit-btn" download="event_qrcode.png">Download QR Code</a>
+    <button class="submit-btn" onclick="goToLibrary()">Go to Event Library</button>
+  </div>
+
   <script>
     const recurringCheckbox = document.getElementById('recurringCheckbox');
     const recurringDays = document.getElementById('recurringDays');
@@ -144,9 +165,27 @@
 
     document.getElementById("createEventForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      // Handle form submission
-      alert("Event Created!");
+      const teacher = document.getElementById("teacher").value;
+      const course = document.getElementById("course").value;
+      const description = document.getElementById("description").value;
+      const location = document.getElementById("location").value;
+      const date = document.getElementById("date").value;
+
+      const qrData = `Teacher: ${teacher}\nCourse: ${course}\nLocation: ${location}\nDate: ${date}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+
+      const qrImage = document.getElementById("qrCode");
+      const downloadLink = document.getElementById("downloadLink");
+      const qrSection = document.getElementById("qrSection");
+
+      qrImage.src = qrUrl;
+      downloadLink.href = qrUrl;
+      qrSection.style.display = "flex";
     });
+
+    function goToLibrary() {
+      window.location.href = 'event-library.html';
+    }
   </script>
 
 </body>

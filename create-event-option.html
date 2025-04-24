@@ -85,19 +85,6 @@
       gap: 10px;
       margin-top: 10px;
     }
-
-    .qr-section {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .qr-section img {
-      width: 200px;
-      height: 200px;
-    }
   </style>
 </head>
 <body>
@@ -115,13 +102,7 @@
     <div class="extra-fields" id="extraFields">
       <input type="text" id="eventLocation" placeholder="Enter Location" />
       <input type="date" id="eventDate" />
-      <button class="btn" onclick="generateQRCode()">Continue</button>
-    </div>
-    <div class="qr-section" id="qrSection">
-      <h3>QR Code for Your Event</h3>
-      <img id="qrCode" src="" alt="QR Code" />
-      <a id="downloadLink" class="btn" download="event_qrcode.png">Download QR Code</a>
-      <button class="btn" onclick="goToLibrary()">Go to Event Library</button>
+      <button class="btn" onclick="goToCreatePage()">Continue</button>
     </div>
   </div>
 
@@ -129,29 +110,11 @@
     function handleTemplateSelection() {
       const templateSelect = document.getElementById('templateSelect');
       const extraFields = document.getElementById('extraFields');
-      const qrSection = document.getElementById('qrSection');
       extraFields.style.display = templateSelect.value !== '' ? 'flex' : 'none';
-      qrSection.style.display = 'none';
     }
 
-    function generateQRCode() {
-      const qrImage = document.getElementById('qrCode');
-      const downloadLink = document.getElementById('downloadLink');
-      const qrSection = document.getElementById('qrSection');
-      const eventLocation = document.getElementById('eventLocation').value;
-      const eventDate = document.getElementById('eventDate').value;
-      const template = document.getElementById('templateSelect').value;
-
-      const qrData = `Template: ${template}\nLocation: ${eventLocation}\nDate: ${eventDate}`;
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
-
-      qrImage.src = qrUrl;
-      downloadLink.href = qrUrl;
-      qrSection.style.display = 'flex';
-    }
-
-    function goToLibrary() {
-      window.location.href = 'event-library.html';
+    function goToCreatePage() {
+      window.location.href = 'create-event.html';
     }
   </script>
 </body>
