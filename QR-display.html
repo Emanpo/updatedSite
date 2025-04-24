@@ -45,29 +45,48 @@
     .btn:hover {
       background-color: #003f8a;
     }
+
+    .event-info {
+      margin-top: 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>QR Code for Your Event</h1>
     <img id="qrImage" src="" alt="Event QR Code" />
-    <br />
-    <a id="downloadLink" class="btn" download="event_qrcode.png">Download QR Code</a>
-    <br />
+    <div class="event-info">
+      <p><strong>Template:</strong> <span id="t"></span></p>
+      <p><strong>Location:</strong> <span id="l"></span></p>
+      <p><strong>Date:</strong> <span id="d"></span></p>
+    </div>
+    <button id="downloadBtn" class="btn">Download QR Code</button>
     <button class="btn" onclick="goToLibrary()">Go to Event Library</button>
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const template = params.get('template');
-    const location = params.get('location');
-    const date = params.get('date');
+    const template = params.get('template') || "N/A";
+    const location = params.get('location') || "N/A";
+    const date = params.get('date') || "N/A";
 
     const qrData = `Template: ${template}\nLocation: ${location}\nDate: ${date}`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
 
     document.getElementById('qrImage').src = qrUrl;
-    document.getElementById('downloadLink').href = qrUrl;
+    document.getElementById('t').textContent = template;
+    document.getElementById('l').textContent = location;
+    document.getElementById('d').textContent = date;
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      const link = document.createElement("a");
+      link.href = document.getElementById("qrImage").src;
+      link.download = "event_qrcode.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
 
     function goToLibrary() {
       window.location.href = 'library.html';
