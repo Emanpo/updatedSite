@@ -16,6 +16,12 @@
       margin-bottom: 10px;
     }
 
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
     .search-container {
       text-align: right;
       margin-bottom: 10px;
@@ -108,11 +114,26 @@
     #editModal input,
     #eventForm select,
     #editModal select {
-      display: block;
       margin-bottom: 10px;
       width: 100%;
       padding: 8px;
       font-size: 16px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    #editModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
   </style>
 </head>
@@ -126,13 +147,36 @@
   </div>
 
   <form id="eventForm" onsubmit="submitEvent(event)">
-    <input type="text" id="teacher" placeholder="Teacher" required />
-    <input type="text" id="course" placeholder="Course" required />
-    <input type="text" id="description" placeholder="Description" required />
+    <label>Teacher</label>
+    <input type="text" id="teacher" required />
+
+    <label>Course</label>
+    <input type="text" id="course" required />
+
+    <label>Description</label>
+    <input type="text" id="description" required />
+
+    <label>Roster File</label>
     <input type="file" id="roster" required />
-    <input type="text" id="location" placeholder="Location" required />
+
+    <label>Location</label>
+    <select id="location" required>
+      <option value="Building name">Building name</option>
+      <option value="Remote">Remote</option>
+    </select>
+
+    <label>Date</label>
     <input type="date" id="date" required />
-    <input type="text" id="recurring" placeholder="Recurring (e.g. MWF)" required />
+
+    <label>Recurring Days</label>
+    <div class="checkbox-group" id="recurringDays">
+      <label><input type="checkbox" value="M"> M</label>
+      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="W"> W</label>
+      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="F"> F</label>
+    </div>
+
     <button type="submit">Add to Table</button>
   </form>
 
@@ -157,14 +201,39 @@
 
   <!-- Edit Modal -->
   <div id="editModal">
+    <label>Teacher</label>
     <input type="text" id="editTeacher" required />
+
+    <label>Course</label>
     <input type="text" id="editCourse" required />
+
+    <label>Description</label>
     <input type="text" id="editDescription" required />
-    <input type="text" id="editRoster" required />
-    <input type="text" id="editLocation" required />
+
+    <label>Roster</label>
+    <input type="file" id="editRosterFile" />
+    <input type="text" id="editRosterText" readonly />
+
+    <label>Location</label>
+    <select id="editLocation">
+      <option value="Building name">Building name</option>
+      <option value="Remote">Remote</option>
+    </select>
+
+    <label>Date</label>
     <input type="date" id="editDate" required />
-    <input type="text" id="editRecurring" required />
+
+    <label>Recurring</label>
+    <div class="checkbox-group" id="editRecurringGroup">
+      <label><input type="checkbox" value="M"> M</label>
+      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="W"> W</label>
+      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="F"> F</label>
+    </div>
+
     <button onclick="saveEdit()">Save Changes</button>
+    <button onclick="cancelEdit()">Cancel</button>
   </div>
 
   <script>
@@ -175,6 +244,17 @@
       form.style.display = form.style.display === "none" ? "block" : "none";
     });
 
+    function getCheckedDays(containerId) {
+      return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`))
+        .map(cb => cb.value)
+        .join("");
+    }
+
+    function setCheckedDays(containerId, days) {
+      const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
+      checkboxes.forEach(cb => cb.checked = days.includes(cb.value));
+    }
+
     function submitEvent(e) {
       e.preventDefault();
       const teacher = document.getElementById("teacher").value;
@@ -183,7 +263,7 @@
       const roster = document.getElementById("roster").files[0]?.name || "No file";
       const location = document.getElementById("location").value;
       const date = document.getElementById("date").value;
-      const recurring = document.getElementById("recurring").value;
+      const recurring = getCheckedDays("recurringDays");
 
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -195,69 +275,4 @@
         <td>${date}</td>
         <td>${recurring}</td>
         <td class="action-buttons">
-          <button class="action" onclick="editRow(this)">Edit</button>
-          <button class="action" onclick="deleteRow(this)">Delete</button>
-        </td>
-      `;
-      document.querySelector("#adminTable tbody").appendChild(row);
-      document.getElementById("eventForm").reset();
-      document.getElementById("eventForm").style.display = "none";
-    }
-
-    function editRow(button) {
-      editRowRef = button.closest("tr");
-      document.getElementById("editTeacher").value = editRowRef.cells[0].innerText;
-      document.getElementById("editCourse").value = editRowRef.cells[1].innerText;
-      document.getElementById("editDescription").value = editRowRef.cells[2].innerText;
-      document.getElementById("editRoster").value = editRowRef.cells[3].innerText.split("\n")[0];
-      document.getElementById("editLocation").value = editRowRef.cells[4].innerText;
-      document.getElementById("editDate").value = editRowRef.cells[5].innerText;
-      document.getElementById("editRecurring").value = editRowRef.cells[6].innerText;
-      document.getElementById("editModal").style.display = "block";
-    }
-
-    function saveEdit() {
-      editRowRef.cells[0].innerText = document.getElementById("editTeacher").value;
-      editRowRef.cells[1].innerText = document.getElementById("editCourse").value;
-      editRowRef.cells[2].innerText = document.getElementById("editDescription").value;
-      editRowRef.cells[3].innerHTML = `<select><option>${document.getElementById("editRoster").value}</option><option>Download roster</option></select>`;
-      editRowRef.cells[4].innerText = document.getElementById("editLocation").value;
-      editRowRef.cells[5].innerText = document.getElementById("editDate").value;
-      editRowRef.cells[6].innerText = document.getElementById("editRecurring").value;
-      document.getElementById("editModal").style.display = "none";
-    }
-
-    function deleteRow(button) {
-      if (confirm("Are you sure you want to delete this event?")) {
-        button.closest("tr").remove();
-      }
-    }
-
-    document.getElementById("searchInput").addEventListener("keyup", function () {
-      const filter = this.value.toLowerCase();
-      const rows = document.querySelectorAll("#adminTable tbody tr");
-      rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(filter) ? "" : "none";
-      });
-    });
-
-    document.getElementById("downloadBtn").addEventListener("click", function () {
-      let csvContent = "data:text/csv;charset=utf-8,";
-      const rows = document.querySelectorAll("table tr");
-      rows.forEach(row => {
-        const cols = row.querySelectorAll("td, th");
-        const rowData = Array.from(cols).slice(0, 7).map(col => `"${col.innerText}"`).join(",");
-        csvContent += rowData + "\r\n";
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "admin_class_table.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-  </script>
-</body>
-</html>
+          <button class="
