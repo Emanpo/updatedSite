@@ -173,7 +173,7 @@
       <label><input type="checkbox" value="M"> M</label>
       <label><input type="checkbox" value="T"> T</label>
       <label><input type="checkbox" value="W"> W</label>
-      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="Th"> Th</label>
       <label><input type="checkbox" value="F"> F</label>
     </div>
 
@@ -228,7 +228,7 @@
       <label><input type="checkbox" value="M"> M</label>
       <label><input type="checkbox" value="T"> T</label>
       <label><input type="checkbox" value="W"> W</label>
-      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="Th"> Th</label>
       <label><input type="checkbox" value="F"> F</label>
     </div>
 
@@ -247,12 +247,14 @@
     function getCheckedDays(containerId) {
       return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`))
         .map(cb => cb.value)
-        .join("");
+        .join(" ");
     }
 
-    function setCheckedDays(containerId, days) {
+    function setCheckedDays(containerId, daysString) {
       const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
-      checkboxes.forEach(cb => cb.checked = days.includes(cb.value));
+      checkboxes.forEach(cb => {
+        cb.checked = daysString.includes(cb.value);
+      });
     }
 
     function submitEvent(e) {
@@ -282,6 +284,7 @@
       document.querySelector("#adminTable tbody").appendChild(row);
       document.getElementById("eventForm").reset();
       document.getElementById("eventForm").style.display = "none";
+      saveToLocalStorage();
     }
 
     function editRow(button) {
@@ -289,7 +292,7 @@
       document.getElementById("editTeacher").value = editRowRef.cells[0].innerText;
       document.getElementById("editCourse").value = editRowRef.cells[1].innerText;
       document.getElementById("editDescription").value = editRowRef.cells[2].innerText;
-      document.getElementById("editRosterText").value = editRowRef.cells[3].innerText.split("\n")[0];
+      document.getElementById("editRosterText").value = editRowRef.cells[3].innerText.split('\n')[0];
       document.getElementById("editLocation").value = editRowRef.cells[4].innerText;
       document.getElementById("editDate").value = editRowRef.cells[5].innerText;
       setCheckedDays("editRecurringGroup", editRowRef.cells[6].innerText);
@@ -300,16 +303,14 @@
       editRowRef.cells[0].innerText = document.getElementById("editTeacher").value;
       editRowRef.cells[1].innerText = document.getElementById("editCourse").value;
       editRowRef.cells[2].innerText = document.getElementById("editDescription").value;
-
       const uploadedRoster = document.getElementById("editRosterFile").files[0]?.name;
       const rosterName = uploadedRoster || document.getElementById("editRosterText").value;
       editRowRef.cells[3].innerHTML = `<select><option>${rosterName}</option><option>Download roster</option></select>`;
-
       editRowRef.cells[4].innerText = document.getElementById("editLocation").value;
       editRowRef.cells[5].innerText = document.getElementById("editDate").value;
       editRowRef.cells[6].innerText = getCheckedDays("editRecurringGroup");
-
       document.getElementById("editModal").style.display = "none";
+      saveToLocalStorage();
     }
 
     function cancelEdit() {
@@ -319,7 +320,45 @@
     function deleteRow(button) {
       if (confirm("Are you sure you want to delete this event?")) {
         button.closest("tr").remove();
+        saveToLocalStorage();
       }
+    }
+
+    function saveToLocalStorage() {
+      const rows = document.querySelectorAll("#adminTable tbody tr");
+      const data = Array.from(rows).map(row => ({
+        teacher: row.cells[0].innerText,
+        course: row.cells[1].innerText,
+        description: row.cells[2].innerText,
+        roster: row.cells[3].innerText.split('\n')[0],
+        location: row.cells[4].innerText,
+        date: row.cells[5].innerText,
+        recurring: row.cells[6].innerText
+      }));
+      localStorage.setItem("adminEvents", JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+      const data = JSON.parse(localStorage.getItem("adminEvents") || "[]");
+      const tbody = document.querySelector("#adminTable tbody");
+      tbody.innerHTML = "";
+      data.forEach(event => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${event.teacher}</td>
+          <td>${event.course}</td>
+          <td>${event.description}</td>
+          <td><select><option>${event.roster}</option><option>Download roster</option></select></td>
+          <td>${event.location}</td>
+          <td>${event.date}</td>
+          <td>${event.recurring}</td>
+          <td class="action-buttons">
+            <button class="action" onclick="editRow(this)">Edit</button>
+            <button class="action" onclick="deleteRow(this)">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
     }
 
     document.getElementById("searchInput").addEventListener("keyup", function () {
@@ -347,6 +386,9 @@
       link.click();
       document.body.removeChild(link);
     });
+
+    // Load saved events on startup
+    window.onload = loadFromLocalStorage;
   </script>
 </body>
 </html>
