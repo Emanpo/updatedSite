@@ -85,6 +85,15 @@
       gap: 10px;
       margin-top: 10px;
     }
+
+    .delete-btn {
+      margin-top: 10px;
+      background-color: #b30000;
+    }
+
+    .delete-btn:hover {
+      background-color: #8a0000;
+    }
   </style>
 </head>
 <body>
@@ -95,10 +104,11 @@
       <label for="templateSelect">Choose a saved template:</label>
       <select id="templateSelect" onchange="handleTemplateSelection()">
         <option value="">-- Select a Created Class --</option>
-        <option value="template1">Template 1</option>
-        <option value="template2">Template 2</option>
       </select>
+
+      <button id="deleteBtn" class="btn delete-btn" style="display: none;" onclick="deleteTemplate()">Delete Selected Template</button>
     </div>
+
     <div class="extra-fields" id="extraFields">
       <input type="text" id="eventLocation" placeholder="Enter Location" />
       <input type="date" id="eventDate" />
@@ -107,23 +117,66 @@
   </div>
 
   <script>
+    function loadTemplates() {
+      const templateSelect = document.getElementById('templateSelect');
+      templateSelect.innerHTML = '<option value="">-- Select a Created Class --</option>'; // reset
+      const templates = JSON.parse(localStorage.getItem('templates')) || [];
+
+      templates.forEach((template, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = template.name;
+        templateSelect.appendChild(option);
+      });
+    }
+
     function handleTemplateSelection() {
       const templateSelect = document.getElementById('templateSelect');
       const extraFields = document.getElementById('extraFields');
-      extraFields.style.display = templateSelect.value !== '' ? 'flex' : 'none';
+      const deleteBtn = document.getElementById('deleteBtn');
+      const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      const selectedIndex = templateSelect.value;
+
+      if (selectedIndex !== '') {
+        const selectedTemplate = templates[selectedIndex];
+        document.getElementById('eventLocation').value = selectedTemplate.location || '';
+        document.getElementById('eventDate').value = selectedTemplate.date || '';
+        extraFields.style.display = 'flex';
+        deleteBtn.style.display = 'inline-block';
+      } else {
+        extraFields.style.display = 'none';
+        deleteBtn.style.display = 'none';
+        document.getElementById('eventLocation').value = '';
+        document.getElementById('eventDate').value = '';
+      }
+    }
+
+    function deleteTemplate() {
+      const templateSelect = document.getElementById('templateSelect');
+      const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      const selectedIndex = templateSelect.value;
+
+      if (selectedIndex !== '') {
+        templates.splice(selectedIndex, 1); // remove selected template
+        localStorage.setItem('templates', JSON.stringify(templates));
+        loadTemplates(); // refresh dropdown
+        document.getElementById('extraFields').style.display = 'none';
+        document.getElementById('deleteBtn').style.display = 'none';
+        alert('Template deleted!');
+      }
     }
 
     function goToQRCodePage() {
-      const template = document.getElementById('templateSelect').value;
       const location = document.getElementById('eventLocation').value;
       const date = document.getElementById('eventDate').value;
       const params = new URLSearchParams({
-        template,
         location,
         date
       });
       window.location.href = 'QR-display.html?' + params.toString();
     }
+
+    window.onload = loadTemplates;
   </script>
 </body>
 </html>
