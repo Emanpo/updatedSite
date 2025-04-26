@@ -190,6 +190,7 @@
         <th>Location</th>
         <th>Date</th>
         <th>Recurring</th>
+        <th>Created By</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -276,6 +277,7 @@
         <td>${location}</td>
         <td>${date}</td>
         <td>${recurring}</td>
+        <td>Admin</td>
         <td class="action-buttons">
           <button class="action" onclick="editRow(this)">Edit</button>
           <button class="action" onclick="deleteRow(this)">Delete</button>
@@ -326,7 +328,7 @@
 
     function saveToLocalStorage() {
       const rows = document.querySelectorAll("#adminTable tbody tr");
-      const data = Array.from(rows).map(row => ({
+      const data = Array.from(rows).filter(row => row.cells[7].innerText === "Admin").map(row => ({
         teacher: row.cells[0].innerText,
         course: row.cells[1].innerText,
         description: row.cells[2].innerText,
@@ -339,10 +341,12 @@
     }
 
     function loadFromLocalStorage() {
-      const data = JSON.parse(localStorage.getItem("adminEvents") || "[]");
+      const adminData = JSON.parse(localStorage.getItem("adminEvents") || "[]").map(e => ({...e, createdBy: "Admin"}));
+      const teacherData = JSON.parse(localStorage.getItem("teacherEvents") || "[]").map(e => ({...e, createdBy: "Teacher"}));
+      const allData = [...adminData, ...teacherData];
       const tbody = document.querySelector("#adminTable tbody");
       tbody.innerHTML = "";
-      data.forEach(event => {
+      allData.forEach(event => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${event.teacher}</td>
@@ -352,6 +356,7 @@
           <td>${event.location}</td>
           <td>${event.date}</td>
           <td>${event.recurring}</td>
+          <td>${event.createdBy}</td>
           <td class="action-buttons">
             <button class="action" onclick="editRow(this)">Edit</button>
             <button class="action" onclick="deleteRow(this)">Delete</button>
@@ -375,7 +380,7 @@
       const rows = document.querySelectorAll("table tr");
       rows.forEach(row => {
         const cols = row.querySelectorAll("td, th");
-        const rowData = Array.from(cols).slice(0, 7).map(col => `"${col.innerText}"`).join(",");
+        const rowData = Array.from(cols).slice(0, 8).map(col => `"${col.innerText}"`).join(",");
         csvContent += rowData + "\r\n";
       });
       const encodedUri = encodeURI(csvContent);
@@ -387,7 +392,6 @@
       document.body.removeChild(link);
     });
 
-    // Load saved events on startup
     window.onload = loadFromLocalStorage;
   </script>
 </body>
