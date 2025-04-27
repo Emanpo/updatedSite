@@ -100,6 +100,10 @@
     #downloadBtn:hover, #saveChangesBtn:hover, #goBackBtn:hover {
       background-color: #218838;
     }
+
+    #saveChangesBtn {
+      display: none; /* Hide Save Changes button initially */
+    }
   </style>
 </head>
 <body>
@@ -139,33 +143,34 @@
   <script>
     const table = document.getElementById("teacherTable");
     const tbody = table.querySelector("tbody");
+    const saveChangesBtn = document.getElementById("saveChangesBtn");
 
-    // Load from localStorage
+    // Load events
     window.addEventListener("DOMContentLoaded", () => {
-      tbody.innerHTML = ""; // Clear existing rows
+      tbody.innerHTML = "";
 
       const events = JSON.parse(localStorage.getItem("events")) || [];
       const seen = new Set();
 
       events.forEach(event => {
         const key = `${event.teacher}|${event.course}|${event.date}`;
-        if (seen.has(key)) return; // Skip duplicates
+        if (seen.has(key)) return;
         seen.add(key);
 
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td contenteditable="true">${event.teacher}</td>
-          <td contenteditable="true">${event.course}</td>
-          <td contenteditable="true">${event.description}</td>
+          <td>${event.teacher}</td>
+          <td>${event.course}</td>
+          <td>${event.description}</td>
           <td>
-            <select>
+            <select disabled>
               <option>${event.roster || "0 students"}</option>
               <option>Download roster</option>
             </select>
           </td>
-          <td contenteditable="true">${event.location}</td>
-          <td contenteditable="true">${event.date}</td>
-          <td contenteditable="true">${event.recurring}</td>
+          <td>${event.location}</td>
+          <td>${event.date}</td>
+          <td>${event.recurring}</td>
           <td class="action-buttons">
             <button class="action" onclick="editRow(this)">Edit</button>
             <button class="action" onclick="deleteRow(this)">Delete</button>
@@ -179,16 +184,70 @@
       if (confirm("Are you sure you want to delete this event?")) {
         const row = button.closest("tr");
         row.remove();
+        showSaveButton();
       }
     }
 
     function editRow(button) {
-      alert("Directly edit table cells!");
+      const row = button.closest("tr");
+      const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))"); // Skip actions and roster select
+      editableCells.forEach(cell => {
+        cell.contentEditable = "true";
+        cell.style.backgroundColor = "#ffffcc"; // light yellow to show it's editable
+      });
+      const rosterSelect = row.querySelector("select");
+      if (rosterSelect) {
+        rosterSelect.disabled = false;
+      }
+      showSaveButton();
     }
+
+    function showSaveButton() {
+      saveChangesBtn.style.display = "inline-block";
+    }
+
+    function hideSaveButton() {
+      saveChangesBtn.style.display = "none";
+    }
+
+    document.getElementById("saveChangesBtn").addEventListener("click", function () {
+      const rows = tbody.querySelectorAll("tr");
+      const updatedEvents = [];
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const event = {
+          teacher: cells[0].innerText.trim(),
+          course: cells[1].innerText.trim(),
+          description: cells[2].innerText.trim(),
+          roster: cells[3].querySelector("select").value,
+          location: cells[4].innerText.trim(),
+          date: cells[5].innerText.trim(),
+          recurring: cells[6].innerText.trim()
+        };
+        updatedEvents.push(event);
+
+        // After saving, remove editable
+        const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))");
+        editableCells.forEach(cell => {
+          cell.contentEditable = "false";
+          cell.style.backgroundColor = ""; // remove background highlight
+        });
+
+        const rosterSelect = row.querySelector("select");
+        if (rosterSelect) {
+          rosterSelect.disabled = true;
+        }
+      });
+
+      localStorage.setItem("events", JSON.stringify(updatedEvents));
+      alert("Changes saved!");
+      hideSaveButton();
+    });
 
     document.getElementById("downloadBtn").addEventListener("click", function () {
       let csvContent = "data:text/csv;charset=utf-8,";
-      const rows = table.querySelectorAll("table tr");
+      const rows = table.querySelectorAll("tr");
 
       rows.forEach(row => {
         const cols = row.querySelectorAll("td, th");
@@ -205,37 +264,15 @@
       document.body.removeChild(link);
     });
 
-    document.getElementById("saveChangesBtn").addEventListener("click", function () {
-      const rows = tbody.querySelectorAll("tr");
-      const updatedEvents = [];
-
-      rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-        const event = {
-          teacher: cells[0].innerText,
-          course: cells[1].innerText,
-          description: cells[2].innerText,
-          roster: cells[3].querySelector("select").value,
-          location: cells[4].innerText,
-          date: cells[5].innerText,
-          recurring: cells[6].innerText
-        };
-        updatedEvents.push(event);
-      });
-
-      localStorage.setItem("events", JSON.stringify(updatedEvents));
-      alert("Changes saved!");
-    });
-
     document.getElementById("goBackBtn").addEventListener("click", function () {
-      window.location.href = "teacher-dashboard.html"; // Adjust if your dashboard has a different filename
+      window.location.href = "teacher-dashboard.html";
     });
 
     const searchInput = document.getElementById("searchInput");
-    const rows = table.querySelector("tbody").getElementsByTagName("tr");
-
     searchInput.addEventListener("keyup", function () {
       const filter = searchInput.value.toLowerCase();
+      const rows = tbody.getElementsByTagName("tr");
+
       for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName("td");
         let showRow = false;
