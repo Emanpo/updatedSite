@@ -69,7 +69,7 @@
       font-weight: 500;
     }
 
-    select, input[type="text"], input[type="date"] {
+    select, input[type="date"] {
       padding: 10px;
       font-size: 16px;
       border-radius: 6px;
@@ -100,6 +100,7 @@
   <h1>Select How to Create Your Event</h1>
   <div class="option-container">
     <button class="btn" onclick="window.location.href='create-event.html'">Create a New Class</button>
+
     <div class="template-select">
       <label for="templateSelect">Choose a saved template:</label>
       <select id="templateSelect" onchange="handleTemplateSelection()">
@@ -110,7 +111,11 @@
     </div>
 
     <div class="extra-fields" id="extraFields">
-      <input type="text" id="eventLocation" placeholder="Enter Location" />
+      <select id="eventLocation">
+        <option value="">Select Location</option>
+        <option value="Remote">Remote</option>
+        <option value="Building">Building</option>
+      </select>
       <input type="date" id="eventDate" />
       <button class="btn" onclick="goToQRCodePage()">Continue</button>
     </div>
@@ -139,7 +144,15 @@
 
       if (selectedIndex !== '') {
         const selectedTemplate = templates[selectedIndex];
-        document.getElementById('eventLocation').value = selectedTemplate.location || '';
+        const locationDropdown = document.getElementById('eventLocation');
+
+        // Set the location dropdown if matches Remote/Building
+        if (selectedTemplate.location === "Remote" || selectedTemplate.location === "Building") {
+          locationDropdown.value = selectedTemplate.location;
+        } else {
+          locationDropdown.value = ""; // default empty if unknown
+        }
+
         document.getElementById('eventDate').value = selectedTemplate.date || '';
         extraFields.style.display = 'flex';
         deleteBtn.style.display = 'inline-block';
