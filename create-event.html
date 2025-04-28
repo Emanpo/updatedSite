@@ -13,7 +13,7 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       color: white;
     }
 
@@ -24,6 +24,13 @@
       margin: 0 auto;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
     }
 
     .form-group {
@@ -74,6 +81,14 @@
 
     .clear-btn {
       background-color: #007bff;
+      color: #fff;
+    }
+
+    .template-save {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
   </style>
 </head>
@@ -82,6 +97,7 @@
   <h1>New Class</h1>
 
   <div class="event-form-container">
+    <div class="form-title">Create Event Form</div>
     <form id="createEventForm">
       <div class="form-group">
         <label for="teacher">Teacher</label>
@@ -105,7 +121,10 @@
 
       <div class="form-group">
         <label for="location">Location</label>
-        <input type="text" id="location" name="location" required />
+        <select id="location" name="location" required>
+          <option value="Remote">Remote</option>
+          <option value="Building">Building</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -127,6 +146,11 @@
         </div>
       </div>
 
+      <div class="form-group template-save">
+        <input type="checkbox" id="saveAsTemplate" />
+        <label for="saveAsTemplate">Save as Template</label>
+      </div>
+
       <div class="form-actions">
         <button type="submit" class="submit-btn">Submit</button>
         <button type="reset" class="clear-btn">Clear</button>
@@ -137,24 +161,25 @@
   <script>
     const recurringCheckbox = document.getElementById('recurringCheckbox');
     const recurringDays = document.getElementById('recurringDays');
-  
+
     recurringCheckbox.addEventListener('change', function () {
       recurringDays.style.display = this.checked ? 'flex' : 'none';
     });
-  
+
     document.getElementById("createEventForm").addEventListener("submit", function (e) {
       e.preventDefault();
-  
+
       const teacher = document.getElementById("teacher").value;
       const course = document.getElementById("course").value;
       const description = document.getElementById("description").value;
       const location = document.getElementById("location").value;
       const date = document.getElementById("date").value;
       const roster = document.getElementById("roster").files[0]?.name || "N/A";
-  
+      const saveAsTemplate = document.getElementById("saveAsTemplate").checked;
+
       const recurring = recurringCheckbox.checked;
       const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
-  
+
       const event = {
         id: Date.now(),
         teacher,
@@ -166,22 +191,33 @@
         recurring,
         days
       };
-  
-      // Save to localStorage (append to array)
+
+      // Save event to events list
       const events = JSON.parse(localStorage.getItem("events") || "[]");
       events.push(event);
       localStorage.setItem("events", JSON.stringify(events));
-  
+
+      if (saveAsTemplate) {
+        const templates = JSON.parse(localStorage.getItem("templates") || "[]");
+        templates.push({
+          name: course,
+          teacher,
+          description,
+          location
+        });
+        localStorage.setItem("templates", JSON.stringify(templates));
+      }
+
       alert("Event created successfully!");
-  
-      // Redirect with query parameters (optional for qr-display.html)
+
+      // Redirect with query parameters
       const params = new URLSearchParams({
         id: event.id,
         course,
         date,
         location
       });
-  
+
       window.location.href = "QR-display.html?" + params.toString();
     });
   </script>
