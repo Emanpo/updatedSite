@@ -146,6 +146,15 @@
       padding: 5px 10px;
       font-size: 14px;
     }
+
+    /* NEW STYLES FOR ROW COLORS */
+    .admin-row {
+      background-color: #e6f7ff;
+    }
+
+    .teacher-row {
+      background-color: #f9f2ec;
+    }
   </style>
 </head>
 <body>
@@ -240,7 +249,7 @@
     }
 
     function goBack() {
-      window.location.href = "index.html"; // Change if your dashboard filename is different
+      window.location.href = "index.html";
     }
 
     function submitEvent(e) {
@@ -256,6 +265,7 @@
         .join(", ");
 
       const row = document.createElement("tr");
+      row.classList.add('admin-row');
       row.innerHTML = `
         <td>${teacher}</td>
         <td>${course}</td>
@@ -340,6 +350,7 @@
       const data = JSON.parse(localStorage.getItem("adminTable") || "[]");
       data.forEach(rowData => {
         const row = document.createElement("tr");
+        row.classList.add('admin-row');
         row.innerHTML = `
           <td>${rowData[0]}</td>
           <td>${rowData[1]}</td>
@@ -355,6 +366,31 @@
           </td>
         `;
         document.querySelector("#adminTable tbody").appendChild(row);
+      });
+    }
+
+    function loadTeacherEvents() {
+      const events = JSON.parse(localStorage.getItem('events') || "[]");
+      const tbody = document.querySelector("#adminTable tbody");
+
+      events.forEach(event => {
+        const row = document.createElement("tr");
+        row.classList.add('teacher-row');
+        row.innerHTML = `
+          <td>${event.teacher || "Unknown"}</td>
+          <td>${event.course || "Unknown"}</td>
+          <td>${event.description || ""}</td>
+          <td><select><option>${event.roster || "No file"}</option><option>Download roster</option></select></td>
+          <td>${event.location || ""}</td>
+          <td>${event.date || ""}</td>
+          <td>${event.days ? event.days.join(", ") : ""}</td>
+          <td>Teacher</td>
+          <td class="action-buttons">
+            <button onclick="editRow(this)">Edit</button>
+            <button onclick="deleteRow(this)">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
       });
     }
 
@@ -375,7 +411,10 @@
       document.body.removeChild(a);
     }
 
-    window.onload = loadFromLocalStorage;
+    window.onload = function() {
+      loadFromLocalStorage();
+      loadTeacherEvents();
+    };
   </script>
 
 </body>
