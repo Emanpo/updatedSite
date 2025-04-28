@@ -73,8 +73,11 @@
       const location = params.get('location') || "N/A";
       const date = params.get('date') || "N/A";
 
-      const qrData = `Template: ${template}\nLocation: ${location}\nDate: ${date}`;
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
+      // NEW: Generate a QR Code that links to check-in.html with classId in URL
+      const classId = template; // Using template name as classId
+      const checkInUrl = `check-in.html?classId=${encodeURIComponent(classId)}`;
+
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');
       qrImage.src = qrUrl;

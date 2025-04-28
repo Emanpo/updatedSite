@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Class Check-In</title>
+  <style>
+    body {
+      background-color: #003366;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+      width: 250px;
+      text-align: center;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #0056b3;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #003f8a;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Check In to Class</h1>
+  <input type="text" id="eNumberInput" placeholder="Enter your eNumber" />
+  <button onclick="submitCheckIn()">Submit</button>
+
+  <script>
+    function submitCheckIn() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const classId = urlParams.get('classId') || "Unknown Class";  // fallback just in case
+      const eNumber = document.getElementById('eNumberInput').value.trim();
+
+      if (!eNumber) {
+        alert("Please enter your eNumber!");
+        return;
+      }
+
+      // Get existing check-ins
+      let checkIns = JSON.parse(localStorage.getItem('checkIns')) || [];
+
+      // Add new check-in
+      checkIns.push({
+        classId: classId,
+        eNumber: eNumber,
+        timestamp: new Date().toISOString()
+      });
+
+      localStorage.setItem('checkIns', JSON.stringify(checkIns));
+
+      alert('Check-In successful!');
+      window.location.href = 'confirmation.html'; // or a Thank You page
+    }
+  </script>
+
+</body>
+</html>
