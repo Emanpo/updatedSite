@@ -63,7 +63,7 @@
       background-color: #f2f2f2;
     }
 
-    #downloadBtn {
+    #downloadBtn, #goBackBtn {
       margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
@@ -72,9 +72,10 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-right: 10px;
     }
 
-    #downloadBtn:hover {
+    #downloadBtn:hover, #goBackBtn:hover {
       background-color: #0056b3;
     }
   </style>
@@ -101,26 +102,43 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td contenteditable="true">Biology 101</td>
-        <td contenteditable="true">Ms. Johnson</td>
-        <td contenteditable="true">Intro to Biology</td>
-        <td contenteditable="true">Room 204</td>
-        <td contenteditable="true">2025-04-24</td>
-        <td contenteditable="true">MWF</td>
-      </tr>
+      <!-- Dynamic rows will be loaded here -->
     </tbody>
   </table>
 
   <button id="downloadBtn">Download CSV</button>
+  <button id="goBackBtn">Go Back to Dashboard</button>
 
   <script>
-    const searchInput = document.getElementById("searchInput");
     const table = document.getElementById("studentTable");
-    const rows = table.querySelector("tbody").getElementsByTagName("tr");
+    const tbody = table.querySelector("tbody");
 
+    // Load checked-in classes
+    window.addEventListener("DOMContentLoaded", () => {
+      tbody.innerHTML = "";
+
+      const checkins = JSON.parse(localStorage.getItem("studentCheckins")) || [];
+
+      checkins.forEach(event => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${event.course}</td>
+          <td>${event.teacher}</td>
+          <td>${event.description}</td>
+          <td>${event.location}</td>
+          <td>${event.date}</td>
+          <td>${event.recurring}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
+
+    // Search filter
+    const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("keyup", function () {
       const filter = searchInput.value.toLowerCase();
+      const rows = tbody.getElementsByTagName("tr");
+
       for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName("td");
         let showRow = false;
@@ -134,9 +152,10 @@
       }
     });
 
+    // Download CSV
     document.getElementById("downloadBtn").addEventListener("click", function () {
       let csvContent = "data:text/csv;charset=utf-8,";
-      const rows = table.querySelectorAll("table tr");
+      const rows = table.querySelectorAll("tr");
 
       rows.forEach(row => {
         const cols = row.querySelectorAll("td, th");
@@ -151,6 +170,11 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    });
+
+    // Go Back Button
+    document.getElementById("goBackBtn").addEventListener("click", function () {
+      window.location.href = "student-dashboard-main.html"; // Update filename if needed
     });
   </script>
 
