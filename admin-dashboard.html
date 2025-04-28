@@ -123,12 +123,10 @@
       background-color: #218838;
     }
 
-    #saveChangesBtn,
     #goBackBtn {
       background-color: #007bff;
     }
 
-    #saveChangesBtn:hover,
     #goBackBtn:hover {
       background-color: #0056b3;
     }
@@ -147,275 +145,278 @@
       font-size: 14px;
     }
 
-    /* NEW STYLES FOR ROW COLORS */
+    /* Row color differences */
     .admin-row {
       background-color: #e6f7ff;
     }
 
     .teacher-row {
-      background-color: #f9f2ec;
+      background-color: #fff0e6;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="top-bar">
-    <h1>Admin Class Table</h1>
-    <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Search..." />
-    </div>
+<div class="top-bar">
+  <h1>Admin Class Table</h1>
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
   </div>
+</div>
 
-  <!-- Form to add event -->
-  <form id="eventForm" onsubmit="submitEvent(event)">
-    <label>Teacher</label>
-    <input type="text" id="teacher" required>
+<!-- Form to add event -->
+<form id="eventForm" onsubmit="submitEvent(event)">
+  <label>Teacher</label>
+  <input type="text" id="teacher" required>
 
-    <label>Course</label>
-    <input type="text" id="course" required>
+  <label>Course</label>
+  <input type="text" id="course" required>
 
-    <label>Description</label>
-    <input type="text" id="description" required>
+  <label>Description</label>
+  <input type="text" id="description" required>
 
-    <label>Roster File</label>
-    <input type="file" id="roster" required>
+  <label>Roster File</label>
+  <input type="file" id="roster" required>
 
-    <label>Location</label>
-    <select id="location" required>
-      <option value="Building name">Building name</option>
-      <option value="Remote">Remote</option>
-    </select>
+  <label>Location</label>
+  <select id="location" required>
+    <option value="Building name">Building name</option>
+    <option value="Remote">Remote</option>
+  </select>
 
-    <label>Date</label>
-    <input type="date" id="date" required>
+  <label>Date</label>
+  <input type="date" id="date" required>
 
-    <label>Recurring Days</label>
-    <div class="checkbox-group" id="recurringDays">
-      <label><input type="checkbox" value="M"> M</label>
-      <label><input type="checkbox" value="T"> T</label>
-      <label><input type="checkbox" value="W"> W</label>
-      <label><input type="checkbox" value="Th"> Th</label>
-      <label><input type="checkbox" value="F"> F</label>
-    </div>
-
-    <div class="button-group">
-      <button type="submit">Add to Table</button>
-      <button type="button" id="cancelFormBtn" onclick="cancelAdd()">Cancel Changes</button>
-    </div>
-  </form>
-
-  <!-- Table to display events -->
-  <table id="adminTable">
-    <thead>
-      <tr>
-        <th>Teacher</th>
-        <th>Course</th>
-        <th>Description</th>
-        <th>Roster</th>
-        <th>Location</th>
-        <th>Date</th>
-        <th>Recurring</th>
-        <th>Created By</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Event rows will be added here -->
-    </tbody>
-  </table>
-
-  <div class="button-group">
-    <button id="addEventBtn" onclick="toggleForm()">Add Event</button>
-    <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
+  <label>Recurring Days</label>
+  <div class="checkbox-group" id="recurringDays">
+    <label><input type="checkbox" value="M"> M</label>
+    <label><input type="checkbox" value="T"> T</label>
+    <label><input type="checkbox" value="W"> W</label>
+    <label><input type="checkbox" value="Th"> Th</label>
+    <label><input type="checkbox" value="F"> F</label>
   </div>
 
   <div class="button-group">
-    <button id="saveChangesBtn" onclick="saveToLocalStorage()">Save Changes</button>
-    <button id="goBackBtn" onclick="goBack()">Go Back to Dashboard</button>
+    <button type="submit">Add to Table</button>
+    <button type="button" id="cancelFormBtn" onclick="cancelAdd()">Cancel</button>
   </div>
+</form>
 
-  <script>
-    let editRowRef = null;
+<!-- Table to display events -->
+<table id="adminTable">
+  <thead>
+    <tr>
+      <th>Teacher</th>
+      <th>Course</th>
+      <th>Description</th>
+      <th>Roster</th>
+      <th>Location</th>
+      <th>Date</th>
+      <th>Recurring</th>
+      <th>Created By</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Event rows will go here -->
+  </tbody>
+</table>
 
-    function toggleForm() {
-      const form = document.getElementById("eventForm");
-      form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+<div class="button-group">
+  <button id="addEventBtn" onclick="toggleForm()">Add Event</button>
+  <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
+  <button id="goBackBtn" onclick="goBack()">Go Back</button>
+</div>
+
+<script>
+  let editRowRef = null;
+
+  function toggleForm() {
+    const form = document.getElementById("eventForm");
+    form.style.display = form.style.display === "block" ? "none" : "block";
+  }
+
+  function cancelAdd() {
+    document.getElementById("eventForm").reset();
+    document.getElementById("eventForm").style.display = "none";
+  }
+
+  function goBack() {
+    window.location.href = "index.html";
+  }
+
+  function submitEvent(e) {
+    e.preventDefault();
+    const teacher = document.getElementById("teacher").value;
+    const course = document.getElementById("course").value;
+    const description = document.getElementById("description").value;
+    const roster = document.getElementById("roster").files[0]?.name || "No file";
+    const location = document.getElementById("location").value;
+    const date = document.getElementById("date").value;
+    const recurring = Array.from(document.querySelectorAll('#recurringDays input:checked'))
+      .map(input => input.value)
+      .join(", ");
+
+    const row = document.createElement("tr");
+    row.classList.add('admin-row');
+    row.innerHTML = `
+      <td>${teacher}</td>
+      <td>${course}</td>
+      <td>${description}</td>
+      <td><select><option>${roster}</option><option>Download roster</option></select></td>
+      <td>${location}</td>
+      <td>${date}</td>
+      <td>${recurring}</td>
+      <td>Admin</td>
+      <td class="action-buttons">
+        <button onclick="editRow(this)">Edit</button>
+        <button onclick="deleteRow(this)">Delete</button>
+      </td>
+    `;
+    document.querySelector("#adminTable tbody").appendChild(row);
+    document.getElementById("eventForm").reset();
+    document.getElementById("eventForm").style.display = "none";
+    saveToLocalStorage();
+  }
+
+  function editRow(button) {
+    const row = button.closest('tr');
+    if (editRowRef) return; // Prevent multiple edits
+    editRowRef = row;
+
+    [...row.children].forEach((cell, index) => {
+      if (index < 7) {
+        const input = document.createElement('input');
+        input.value = cell.innerText;
+        cell.innerText = '';
+        cell.appendChild(input);
+      }
+    });
+
+    const actions = row.querySelector('.action-buttons');
+    actions.innerHTML = `
+      <button onclick="saveEdit(this)">Save</button>
+      <button onclick="cancelEdit(this)">Cancel</button>
+    `;
+  }
+
+  function saveEdit(button) {
+    const row = button.closest('tr');
+    [...row.children].forEach((cell, index) => {
+      if (index < 7) {
+        const input = cell.querySelector('input');
+        if (input) cell.innerText = input.value;
+      }
+    });
+
+    row.querySelector('.action-buttons').innerHTML = `
+      <button onclick="editRow(this)">Edit</button>
+      <button onclick="deleteRow(this)">Delete</button>
+    `;
+    editRowRef = null;
+    saveToLocalStorage();
+  }
+
+  function cancelEdit(button) {
+    loadFromLocalStorage(); // Reload from storage to undo edit
+    editRowRef = null;
+  }
+
+  function deleteRow(button) {
+    if (confirm("Delete this entry?")) {
+      button.closest('tr').remove();
+      saveToLocalStorage();
     }
+  }
 
-    function cancelAdd() {
-      document.getElementById("eventForm").reset();
-      document.getElementById("eventForm").style.display = "none";
-    }
+  function saveToLocalStorage() {
+    const data = Array.from(document.querySelectorAll("#adminTable tbody tr")).map(tr => {
+      return Array.from(tr.children).map(td => td.innerText);
+    });
+    localStorage.setItem("adminTable", JSON.stringify(data));
+  }
 
-    function goBack() {
-      window.location.href = "index.html";
-    }
-
-    function submitEvent(e) {
-      e.preventDefault();
-      const teacher = document.getElementById("teacher").value;
-      const course = document.getElementById("course").value;
-      const description = document.getElementById("description").value;
-      const roster = document.getElementById("roster").files[0]?.name || "No file";
-      const location = document.getElementById("location").value;
-      const date = document.getElementById("date").value;
-      const recurring = Array.from(document.querySelectorAll('#recurringDays input:checked'))
-        .map(input => input.value)
-        .join(", ");
-
+  function loadFromLocalStorage() {
+    const tbody = document.querySelector("#adminTable tbody");
+    tbody.innerHTML = '';
+    const data = JSON.parse(localStorage.getItem("adminTable") || "[]");
+    data.forEach(rowData => {
       const row = document.createElement("tr");
-      row.classList.add('admin-row');
+      row.classList.add(rowData[7] === "Teacher" ? 'teacher-row' : 'admin-row');
       row.innerHTML = `
-        <td>${teacher}</td>
-        <td>${course}</td>
-        <td>${description}</td>
-        <td><select><option>${roster}</option><option>Download roster</option></select></td>
-        <td>${location}</td>
-        <td>${date}</td>
-        <td>${recurring}</td>
-        <td>Admin</td>
+        <td>${rowData[0]}</td>
+        <td>${rowData[1]}</td>
+        <td>${rowData[2]}</td>
+        <td><select><option>${rowData[3]}</option><option>Download roster</option></select></td>
+        <td>${rowData[4]}</td>
+        <td>${rowData[5]}</td>
+        <td>${rowData[6]}</td>
+        <td>${rowData[7]}</td>
         <td class="action-buttons">
           <button onclick="editRow(this)">Edit</button>
           <button onclick="deleteRow(this)">Delete</button>
         </td>
       `;
-      document.querySelector("#adminTable tbody").appendChild(row);
-      document.getElementById("eventForm").reset();
-      document.getElementById("eventForm").style.display = "none";
-      saveToLocalStorage();
-    }
+      tbody.appendChild(row);
+    });
+  }
 
-    function editRow(button) {
-      const row = button.closest('tr');
-      if (editRowRef) {
-        cancelEdit(editRowRef);
-      }
-      editRowRef = row;
-      [...row.children].forEach((cell, index) => {
-        if (index < 7) {
-          const input = document.createElement('input');
-          input.value = cell.innerText;
-          cell.innerText = '';
-          cell.appendChild(input);
-        }
-      });
-      const actions = row.querySelector('.action-buttons');
-      actions.innerHTML = `
-        <button onclick="saveEdit(this)">Save</button>
-        <button onclick="cancelEdit(this)">Cancel</button>
+  function loadTeacherEvents() {
+    const events = JSON.parse(localStorage.getItem('events') || "[]");
+    const tbody = document.querySelector("#adminTable tbody");
+    events.forEach(event => {
+      const row = document.createElement("tr");
+      row.classList.add('teacher-row');
+      row.innerHTML = `
+        <td>${event.teacher}</td>
+        <td>${event.course}</td>
+        <td>${event.description}</td>
+        <td><select><option>${event.roster}</option><option>Download roster</option></select></td>
+        <td>${event.location}</td>
+        <td>${event.date}</td>
+        <td>${event.days ? event.days.join(", ") : ""}</td>
+        <td>Teacher</td>
+        <td class="action-buttons">
+          <button onclick="editRow(this)">Edit</button>
+          <button onclick="deleteRow(this)">Delete</button>
+        </td>
       `;
-    }
+      tbody.appendChild(row);
+    });
+  }
 
-    function saveEdit(button) {
-      const row = button.closest('tr');
-      [...row.children].forEach((cell, index) => {
-        if (index < 7) {
-          const input = cell.querySelector('input');
-          if (input) {
-            cell.innerText = input.value;
-          }
-        }
-      });
-      row.querySelector('.action-buttons').innerHTML = `
-        <button onclick="editRow(this)">Edit</button>
-        <button onclick="deleteRow(this)">Delete</button>
-      `;
-      saveToLocalStorage();
-      editRowRef = null;
-    }
+  function downloadCSV() {
+    let csv = "Teacher,Course,Description,Roster,Location,Date,Recurring,Created By\n";
+    document.querySelectorAll("#adminTable tbody tr").forEach(row => {
+      const cols = row.querySelectorAll('td');
+      const rowText = Array.from(cols).slice(0, 8).map(td => td.innerText.replace(',', ';')).join(",");
+      csv += rowText + "\n";
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "admin_table.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
-    function cancelEdit(button) {
-      const row = button.closest('tr');
-      row.innerHTML = editRowRef.innerHTML;
-      editRowRef = null;
-    }
+  function filterTable() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    document.querySelectorAll("#adminTable tbody tr").forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(input) ? "" : "none";
+    });
+  }
 
-    function deleteRow(button) {
-      if (confirm("Are you sure you want to delete this row?")) {
-        const row = button.closest('tr');
-        row.remove();
-        saveToLocalStorage();
-      }
-    }
-
-    function saveToLocalStorage() {
-      const tableData = Array.from(document.querySelectorAll("#adminTable tbody tr")).map(tr => {
-        return Array.from(tr.children).map(td => td.innerText);
-      });
-      localStorage.setItem("adminTable", JSON.stringify(tableData));
-    }
-
-    function loadFromLocalStorage() {
-      const data = JSON.parse(localStorage.getItem("adminTable") || "[]");
-      data.forEach(rowData => {
-        const row = document.createElement("tr");
-        row.classList.add('admin-row');
-        row.innerHTML = `
-          <td>${rowData[0]}</td>
-          <td>${rowData[1]}</td>
-          <td>${rowData[2]}</td>
-          <td><select><option>${rowData[3]}</option><option>Download roster</option></select></td>
-          <td>${rowData[4]}</td>
-          <td>${rowData[5]}</td>
-          <td>${rowData[6]}</td>
-          <td>Admin</td>
-          <td class="action-buttons">
-            <button onclick="editRow(this)">Edit</button>
-            <button onclick="deleteRow(this)">Delete</button>
-          </td>
-        `;
-        document.querySelector("#adminTable tbody").appendChild(row);
-      });
-    }
-
-    function loadTeacherEvents() {
-      const events = JSON.parse(localStorage.getItem('events') || "[]");
-      const tbody = document.querySelector("#adminTable tbody");
-
-      events.forEach(event => {
-        const row = document.createElement("tr");
-        row.classList.add('teacher-row');
-        row.innerHTML = `
-          <td>${event.teacher || "Unknown"}</td>
-          <td>${event.course || "Unknown"}</td>
-          <td>${event.description || ""}</td>
-          <td><select><option>${event.roster || "No file"}</option><option>Download roster</option></select></td>
-          <td>${event.location || ""}</td>
-          <td>${event.date || ""}</td>
-          <td>${event.days ? event.days.join(", ") : ""}</td>
-          <td>Teacher</td>
-          <td class="action-buttons">
-            <button onclick="editRow(this)">Edit</button>
-            <button onclick="deleteRow(this)">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function downloadCSV() {
-      let csv = "Teacher,Course,Description,Roster,Location,Date,Recurring,Created By\n";
-      document.querySelectorAll("#adminTable tbody tr").forEach(row => {
-        const cols = row.querySelectorAll('td');
-        const rowText = Array.from(cols).slice(0, 8).map(td => td.innerText.replace(',', ';')).join(",");
-        csv += rowText + "\n";
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "admin_table.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    window.onload = function() {
-      loadFromLocalStorage();
-      loadTeacherEvents();
-    };
-  </script>
+  window.onload = function() {
+    loadFromLocalStorage();
+    loadTeacherEvents();
+  };
+</script>
 
 </body>
 </html>
