@@ -30,6 +30,7 @@
       height: 300px;
       margin: 20px 0;
       background-color: white;
+      cursor: pointer; /* Makes it look clickable */
     }
 
     .btn {
@@ -56,12 +57,18 @@
 <body>
   <div class="container">
     <h1>QR Code for Your Event</h1>
-    <img id="qrImage" src="" alt="Event QR Code" />
+
+    <!-- Wrap the image inside an anchor -->
+    <a id="qrLink" href="#" target="_blank">
+      <img id="qrImage" src="" alt="Event QR Code" />
+    </a>
+
     <div class="event-info">
       <p><strong>Template:</strong> <span id="t"></span></p>
       <p><strong>Location:</strong> <span id="l"></span></p>
       <p><strong>Date:</strong> <span id="d"></span></p>
     </div>
+
     <button id="downloadBtn" class="btn">Download QR Code</button>
     <button class="btn" onclick="goToLibrary()">Go to Event Library</button>
   </div>
@@ -73,14 +80,16 @@
       const location = params.get('location') || "N/A";
       const date = params.get('date') || "N/A";
 
-      // NEW: Generate a QR Code that links to check-in.html with classId in URL
       const classId = template; // Using template name as classId
       const checkInUrl = `check-in.html?classId=${encodeURIComponent(classId)}`;
 
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');
+      const qrLink = document.getElementById('qrLink');
+
       qrImage.src = qrUrl;
+      qrLink.href = checkInUrl; // Make the link clickable to check-in page
 
       qrImage.onerror = () => {
         qrImage.alt = 'QR Code failed to load.';
