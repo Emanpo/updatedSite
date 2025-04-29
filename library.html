@@ -102,7 +102,7 @@
     }
 
     #saveChangesBtn {
-      display: none; /* Hide Save Changes button initially */
+      display: none;
     }
   </style>
 </head>
@@ -158,6 +158,8 @@
         seen.add(key);
 
         const row = document.createElement("tr");
+        row.dataset.event = JSON.stringify(event); // store full original event
+
         row.innerHTML = `
           <td>${event.teacher}</td>
           <td>${event.course}</td>
@@ -190,10 +192,10 @@
 
     function editRow(button) {
       const row = button.closest("tr");
-      const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))"); // Skip actions and roster select
+      const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))"); // Skip actions and roster
       editableCells.forEach(cell => {
         cell.contentEditable = "true";
-        cell.style.backgroundColor = "#ffffcc"; // light yellow to show it's editable
+        cell.style.backgroundColor = "#ffffcc"; // light yellow
       });
       const rosterSelect = row.querySelector("select");
       if (rosterSelect) {
@@ -216,7 +218,10 @@
 
       rows.forEach(row => {
         const cells = row.querySelectorAll("td");
-        const event = {
+        let originalEvent = JSON.parse(row.dataset.event || "{}");
+
+        const updatedEvent = {
+          ...originalEvent,
           teacher: cells[0].innerText.trim(),
           course: cells[1].innerText.trim(),
           description: cells[2].innerText.trim(),
@@ -225,13 +230,14 @@
           date: cells[5].innerText.trim(),
           recurring: cells[6].innerText.trim()
         };
-        updatedEvents.push(event);
 
-        // After saving, remove editable
+        updatedEvents.push(updatedEvent);
+
+        // Reset editable
         const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))");
         editableCells.forEach(cell => {
           cell.contentEditable = "false";
-          cell.style.backgroundColor = ""; // remove background highlight
+          cell.style.backgroundColor = "";
         });
 
         const rosterSelect = row.querySelector("select");
@@ -247,8 +253,8 @@
 
     document.getElementById("downloadBtn").addEventListener("click", function () {
       let csvContent = "data:text/csv;charset=utf-8,";
-      const rows = table.querySelectorAll("tr");
 
+      const rows = table.querySelectorAll("tr");
       rows.forEach(row => {
         const cols = row.querySelectorAll("td, th");
         const rowData = Array.from(cols).slice(0, 7).map(col => `"${col.innerText}"`).join(",");
