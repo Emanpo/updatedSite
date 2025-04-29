@@ -2,84 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Class Check-In</title>
+  <title>Check In</title>
   <style>
     body {
       background-color: #003366;
+      color: white;
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: white;
-      padding: 20px;
+      padding: 50px;
     }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
+    h1 { margin-bottom: 20px; }
     input[type="text"] {
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
+      padding: 10px;
+      font-size: 18px;
       margin-bottom: 20px;
-      width: 250px;
-      text-align: center;
-    }
-
-    button {
-      padding: 12px 25px;
-      font-size: 16px;
+      width: 300px;
+      border-radius: 5px;
       border: none;
-      border-radius: 8px;
-      background-color: #0056b3;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
       color: white;
       cursor: pointer;
     }
-
-    button:hover {
-      background-color: #003f8a;
-    }
+    button:hover { background-color: #218838; }
   </style>
 </head>
 <body>
 
-  <h1>Check In to Class</h1>
-  <input type="text" id="eNumberInput" placeholder="Enter your eNumber" />
-  <button onclick="submitCheckIn()">Submit</button>
+<h1>Student Check-In</h1>
+<input type="text" id="eNumberInput" placeholder="Enter your eNumber">
+<br>
+<button onclick="submitCheckIn()">Submit</button>
 
-  <script>
-    function submitCheckIn() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const classId = urlParams.get('classId') || "Unknown Class";  // fallback just in case
-      const eNumber = document.getElementById('eNumberInput').value.trim();
+<script>
+function submitCheckIn() {
+  const eNumber = document.getElementById('eNumberInput').value.trim();
+  const params = new URLSearchParams(window.location.search);
+  const classId = params.get('classId');
 
-      if (!eNumber) {
-        alert("Please enter your eNumber!");
-        return;
-      }
+  if (!eNumber || !classId) {
+    alert("Missing eNumber or class information.");
+    return;
+  }
 
-      // Get existing check-ins
-      let checkIns = JSON.parse(localStorage.getItem('checkIns')) || [];
+  let reports = JSON.parse(localStorage.getItem('reports') || '{}');
 
-      // Add new check-in
-      checkIns.push({
-        classId: classId,
-        eNumber: eNumber,
-        timestamp: new Date().toISOString()
-      });
+  if (!reports[classId]) {
+    reports[classId] = [];
+  }
 
-      localStorage.setItem('checkIns', JSON.stringify(checkIns));
+  if (!reports[classId].includes(eNumber)) {
+    reports[classId].push(eNumber);
+  }
 
-      alert('Check-In successful!');
-      window.location.href = 'confirmation.html'; // or a Thank You page
-    }
-  </script>
+  localStorage.setItem('reports', JSON.stringify(reports));
+
+  // After saving, redirect to confirmation
+  window.location.href = `confirmation.html?classId=${classId}`;
+}
+</script>
 
 </body>
 </html>
