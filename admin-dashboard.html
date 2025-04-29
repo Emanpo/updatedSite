@@ -1,150 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard - Events</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
   <style>
     body {
+      background-color: #003366;
       font-family: Arial, sans-serif;
-      background-color: #002D74;
-      margin: 0;
-      padding: 40px;
+      padding: 20px;
+      color: white;
     }
     h1 {
       text-align: center;
-      color: white;
+      margin-bottom: 10px;
+      font-size: 36px;
+    }
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
     }
-    .table-container {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-      overflow-x: auto;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-container input {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+    .search-icon {
+      font-size: 20px;
     }
     table {
       width: 100%;
+      background: white;
+      color: black;
       border-collapse: collapse;
-      min-width: 1000px;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
     }
     th, td {
-      padding: 12px 15px;
-      border: 1px solid #ddd;
+      padding: 12px;
       text-align: center;
     }
     th {
-      background-color: #0041a3;
+      background-color: #004080;
       color: white;
     }
-    .action-buttons button {
-      margin: 0 5px;
-      padding: 6px 12px;
-      font-size: 14px;
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .admin-row {
+      background-color: #e6f7ff;
+    }
+    .teacher-row {
+      background-color: #fff0e6;
+    }
+    #eventForm {
+      background-color: #004080;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+    #eventForm label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    #eventForm input, #eventForm select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
       border: none;
-      border-radius: 4px;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .button-group button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
+    }
+    #addEventBtn, #downloadBtn {
+      background-color: #28a745;
+      color: white;
+    }
+    #addEventBtn:hover, #downloadBtn:hover {
+      background-color: #218838;
+    }
+    #goBackBtn {
       background-color: #007bff;
       color: white;
-      transition: background-color 0.3s;
     }
-    .action-buttons button:hover {
+    #goBackBtn:hover {
       background-color: #0056b3;
     }
-    select {
-      width: 100%;
-      padding: 5px;
+    #cancelFormBtn {
+      background-color: #dc3545;
+      color: white;
+    }
+    #cancelFormBtn:hover {
+      background-color: #c82333;
+    }
+    .action-buttons button {
+      margin: 2px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 5px;
     }
   </style>
 </head>
+
 <body>
 
-  <h1>Admin Dashboard - Events</h1>
+<div class="top-bar">
+  <h1>Admin Class Table</h1>
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+  </div>
+</div>
 
-  <div class="table-container">
-    <table id="eventTable">
-      <thead>
-        <tr>
-          <th>Teacher</th>
-          <th>Course</th>
-          <th>Description</th>
-          <th>Roster</th>
-          <th>Location</th>
-          <th>Date</th>
-          <th>Recurring</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Events will be dynamically inserted here -->
-      </tbody>
-    </table>
+<!-- Add Event Form -->
+<form id="eventForm" onsubmit="submitEvent(event)">
+  <label>Teacher</label>
+  <input type="text" id="teacher" required>
+
+  <label>Course</label>
+  <input type="text" id="course" required>
+
+  <label>Description</label>
+  <input type="text" id="description" required>
+
+  <label>Roster File (CSV)</label>
+  <input type="file" id="roster" accept=".csv" required>
+
+  <label>Location</label>
+  <select id="location" required>
+    <option value="Building name">Building name</option>
+    <option value="Remote">Remote</option>
+  </select>
+
+  <label>Date</label>
+  <input type="date" id="date" required>
+
+  <label>Recurring Days</label>
+  <div class="checkbox-group" id="recurringDays">
+    <label><input type="checkbox" value="M"> M</label>
+    <label><input type="checkbox" value="T"> T</label>
+    <label><input type="checkbox" value="W"> W</label>
+    <label><input type="checkbox" value="Th"> Th</label>
+    <label><input type="checkbox" value="F"> F</label>
   </div>
 
-  <script>
-    function loadEvents() {
-      const events = JSON.parse(localStorage.getItem("events") || "[]");
-      const tbody = document.querySelector("#eventTable tbody");
-      tbody.innerHTML = "";
+  <div class="button-group">
+    <button type="submit">Add to Table</button>
+    <button type="button" id="cancelFormBtn" onclick="cancelAdd()">Cancel</button>
+  </div>
+</form>
 
-      events.forEach(event => {
-        if (!event || typeof event !== "object") return;
+<!-- Events Table -->
+<table id="adminTable">
+  <thead>
+    <tr>
+      <th>Teacher</th>
+      <th>Course</th>
+      <th>Description</th>
+      <th>Roster</th>
+      <th>Location</th>
+      <th>Date</th>
+      <th>Recurring</th>
+      <th>Created By</th>
+      <th>Checked In</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-        const row = document.createElement("tr");
-        row.dataset.event = JSON.stringify(event);
+<div class="button-group">
+  <button id="addEventBtn" onclick="toggleForm()">Add Event</button>
+  <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
+  <button id="goBackBtn" onclick="goBack()">Go Back</button>
+</div>
 
-        const recurringText = event.recurring
-          ? (event.days && event.days.length > 0 ? event.days.join(", ") : "Yes")
-          : "No";
+<script>
+let editRowRef = null;
 
-        row.innerHTML = `
-          <td>${event.teacher || ''}</td>
-          <td>${event.course || ''}</td>
-          <td>${event.description || ''}</td>
-          <td>
-            <select disabled>
-              <option>${event.roster || "N/A"}</option>
-              <option>Download roster</option>
-            </select>
-          </td>
-          <td>${event.location || ''}</td>
-          <td>${event.date || ''}</td>
-          <td>${recurringText}</td>
-          <td class="action-buttons">
-            <button onclick="editRow(this)">Edit</button>
-            <button onclick="deleteRow(this)">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
+function generateId() {
+  return 'class-' + Math.random().toString(36).substr(2, 9);
+}
 
-    function deleteRow(button) {
-      const row = button.closest("tr");
-      const event = JSON.parse(row.dataset.event);
-      let events = JSON.parse(localStorage.getItem("events") || "[]");
+function toggleForm() {
+  const form = document.getElementById("eventForm");
+  form.style.display = form.style.display === "block" ? "none" : "block";
+}
 
-      events = events.filter(e => e.id !== event.id);
+function cancelAdd() {
+  document.getElementById("eventForm").reset();
+  document.getElementById("eventForm").style.display = "none";
+}
 
-      localStorage.setItem("events", JSON.stringify(events));
-      loadEvents();
-    }
+function goBack() {
+  window.location.href = "index.html";
+}
 
-    function editRow(button) {
-      const row = button.closest("tr");
-      const event = JSON.parse(row.dataset.event);
+function submitEvent(e) {
+  e.preventDefault();
+  const teacher = document.getElementById("teacher").value;
+  const course = document.getElementById("course").value;
+  const description = document.getElementById("description").value;
+  const rosterFile = document.getElementById("roster").files[0];
+  const location = document.getElementById("location").value;
+  const date = document.getElementById("date").value;
+  const recurring = Array.from(document.querySelectorAll('#recurringDays input:checked')).map(input => input.value);
+  const id = generateId();
 
-      // Example: Redirect to an edit page, or you could build inline editing
-      const params = new URLSearchParams({
-        id: event.id
-      });
-      window.location.href = `edit-event.html?${params.toString()}`;
-    }
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const rosterBase64 = event.target.result;
+    const newEvent = {
+      id, teacher, course, description, location, date, recurringDays: recurring,
+      createdBy: "Admin",
+      rosterFilename: rosterFile.name,
+      rosterFileBase64: rosterBase64
+    };
+    const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+    adminEvents.push(newEvent);
+    localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+    displayTable();
+    cancelAdd();
+  };
+  reader.readAsDataURL(rosterFile);
+}
 
-    window.onload = loadEvents;
-  </script>
+function createRow(eventObj) {
+  const tr = document.createElement("tr");
+  tr.className = (eventObj.createdBy === "Admin") ? "admin-row" : "teacher-row";
+
+  const rosterCell = eventObj.rosterFileBase64
+    ? `<button onclick="downloadRoster('${eventObj.id}')">Download</button>`
+    : `N/A`;
+
+  tr.innerHTML = `
+    <td>${eventObj.teacher || eventObj.instructor || "Unknown"}</td>
+    <td>${eventObj.course || eventObj.name || "Unknown"}</td>
+    <td>${eventObj.description || "No description"}</td>
+    <td>${rosterCell}</td>
+    <td>${eventObj.location || "Unknown"}</td>
+    <td>${eventObj.date || "Unknown"}</td>
+    <td>${(eventObj.recurringDays || eventObj.recurring || []).join(", ")}</td>
+    <td>${eventObj.createdBy || "Teacher"}</td>
+    <td><button onclick="viewCheckIns('${eventObj.id}')">View</button></td>
+    <td class="action-buttons">
+      <button onclick="editRow(this, '${eventObj.id}')">Edit</button>
+      <button onclick="deleteRow('${eventObj.id}')">Delete</button>
+    </td>
+  `;
+  return tr;
+}
+
+function displayTable() {
+  const tbody = document.querySelector("#adminTable tbody");
+  tbody.innerHTML = "";
+
+  const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+
+  teacherEvents = teacherEvents.map(event => ({
+    ...event,
+    createdBy: event.createdBy || "Teacher"
+  }));
+
+  const allEvents = [...adminEvents, ...teacherEvents];
+  allEvents.forEach(event => {
+    tbody.appendChild(createRow(event));
+  });
+}
+
+function downloadRoster(id) {
+  const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+                  ...JSON.parse(localStorage.getItem('events') || "[]")];
+  const event = events.find(e => e.id === id);
+  if (event && event.rosterFileBase64) {
+    const link = document.createElement('a');
+    link.href = event.rosterFileBase64;
+    link.download = event.rosterFilename;
+    link.click();
+  }
+}
+
+function viewCheckIns(id) {
+  window.location.href = `reports.html?classId=${id}`;
+}
+
+function deleteRow(id) {
+  if (!confirm("Delete this entry?")) return;
+
+  let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+
+  adminEvents = adminEvents.filter(e => e.id !== id);
+  teacherEvents = teacherEvents.filter(e => e.id !== id);
+
+  localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+  localStorage.setItem('events', JSON.stringify(teacherEvents));
+
+  displayTable();
+}
+
+function editRow(button, id) {
+  alert("Simple edit is disabled right now to protect uploaded files. Delete and re-add if needed.");
+}
+
+function downloadCSV() {
+  let csv = "Teacher,Course,Description,Location,Date,Recurring,Created By\n";
+  const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+                  ...JSON.parse(localStorage.getItem('events') || "[]")];
+  events.forEach(e => {
+    csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.location || ""},${e.date || ""},"${(e.recurringDays || e.recurring || []).join(" ")}",${e.createdBy || "Teacher"}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "admin_table.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function filterTable() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  document.querySelectorAll("#adminTable tbody tr").forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(input) ? "" : "none";
+  });
+}
+
+window.onload = displayTable;
+</script>
 
 </body>
 </html>
