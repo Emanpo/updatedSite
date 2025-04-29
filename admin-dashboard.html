@@ -134,292 +134,291 @@
 
 <body>
 
-<div class="top-bar">
-  <h1>Admin Class Table</h1>
-  <div class="search-container">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+  <div class="top-bar">
+    <h1>Admin Class Table</h1>
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+    </div>
   </div>
-</div>
-
-<form id="eventForm" onsubmit="submitEvent(event)">
-  <label>Teacher</label>
-  <input type="text" id="teacher" required>
-
-  <label>Course</label>
-  <input type="text" id="course" required>
-
-  <label>Description</label>
-  <input type="text" id="description" required>
-
-  <div id="rosterSection">
-    <label>Roster File (CSV)</label>
-    <input type="file" id="roster" accept=".csv" required>
-  </div>
-
-  <label>Location</label>
-  <select id="location" required>
-    <option value="Building name">Building name</option>
-    <option value="Remote">Remote</option>
-  </select>
-
-  <label>Date</label>
-  <input type="date" id="date" required>
-
-  <label>Recurring Days</label>
-  <div class="checkbox-group" id="recurringDays">
-    <label><input type="checkbox" value="M"> M</label>
-    <label><input type="checkbox" value="T"> T</label>
-    <label><input type="checkbox" value="W"> W</label>
-    <label><input type="checkbox" value="Th"> Th</label>
-    <label><input type="checkbox" value="F"> F</label>
-  </div>
-
-  <div class="button-group">
-    <button type="submit" id="formSubmitBtn">Add to Table</button>
-    <button type="button" id="cancelFormBtn" onclick="cancelAdd()">Cancel</button>
-  </div>
-</form>
-
-<table id="adminTable">
-  <thead>
-    <tr>
-      <th>Teacher</th>
-      <th>Course</th>
-      <th>Description</th>
-      <th>Roster</th>
-      <th>Location</th>
-      <th>Date</th>
-      <th>Recurring</th>
-      <th>Created By</th>
-      <th>Checked In</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<div class="button-group">
-  <button id="addEventBtn" onclick="toggleForm()">Add Event</button>
-  <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
-  <button id="goBackBtn" onclick="goBack()">Go Back</button>
-</div>
-
-<script>
-let editEventId = null;
-let editEventSource = null;
-
-function generateId() {
-  return 'class-' + Math.random().toString(36).substr(2, 9);
-}
-
-function toggleForm() {
-  const form = document.getElementById("eventForm");
-  form.style.display = form.style.display === "block" ? "none" : "block";
-}
-
-function cancelAdd() {
-  document.getElementById("eventForm").reset();
-  document.getElementById("eventForm").style.display = "none";
-  editEventId = null;
-  editEventSource = null;
-  document.getElementById("rosterSection").style.display = "block";
-  document.getElementById("formSubmitBtn").textContent = "Add to Table";
-}
-
-function goBack() {
-  window.location.href = "index.html";
-}
-
-function submitEvent(e) {
-  e.preventDefault();
   
-  const teacher = document.getElementById("teacher").value;
-  const course = document.getElementById("course").value;
-  const description = document.getElementById("description").value;
-  const location = document.getElementById("location").value;
-  const date = document.getElementById("date").value;
-  const recurring = Array.from(document.querySelectorAll('#recurringDays input:checked')).map(input => input.value);
-
-  if (editEventId) {
-    let events = JSON.parse(localStorage.getItem(editEventSource) || "[]");
-    const index = events.findIndex(e => e.id === editEventId);
-    if (index !== -1) {
-      events[index].teacher = teacher;
-      events[index].course = course;
-      events[index].description = description;
-      events[index].location = location;
-      events[index].date = date;
-      events[index].recurringDays = recurring;
-      localStorage.setItem(editEventSource, JSON.stringify(events));
-    }
+  <form id="eventForm" onsubmit="submitEvent(event)">
+    <label>Teacher</label>
+    <input type="text" id="teacher" required>
+  
+    <label>Course</label>
+    <input type="text" id="course" required>
+  
+    <label>Description</label>
+    <input type="text" id="description" required>
+  
+    <div id="rosterSection">
+      <label>Roster File (CSV)</label>
+      <input type="file" id="roster" accept=".csv" required>
+    </div>
+  
+    <label>Location</label>
+    <select id="location" required>
+      <option value="Building name">Building name</option>
+      <option value="Remote">Remote</option>
+    </select>
+  
+    <label>Date</label>
+    <input type="date" id="date" required>
+  
+    <label>Recurring Days</label>
+    <div class="checkbox-group" id="recurringDays">
+      <label><input type="checkbox" value="M"> M</label>
+      <label><input type="checkbox" value="T"> T</label>
+      <label><input type="checkbox" value="W"> W</label>
+      <label><input type="checkbox" value="Th"> Th</label>
+      <label><input type="checkbox" value="F"> F</label>
+    </div>
+  
+    <div class="button-group">
+      <button type="submit" id="formSubmitBtn">Add to Table</button>
+      <button type="button" id="cancelFormBtn" onclick="cancelAdd()">Cancel</button>
+    </div>
+  </form>
+  
+  <table id="adminTable">
+    <thead>
+      <tr>
+        <th>Teacher</th>
+        <th>Course</th>
+        <th>Description</th>
+        <th>Roster</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Recurring</th>
+        <th>Created By</th>
+        <th>Checked In</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  
+  <div class="button-group">
+    <button id="addEventBtn" onclick="toggleForm()">Add Event</button>
+    <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
+    <button id="goBackBtn" onclick="goBack()">Go Back</button>
+  </div>
+  
+  <script>
+  let editEventId = null;
+  let editEventSource = null;
+  
+  function generateId() {
+    return 'class-' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  function toggleForm() {
+    const form = document.getElementById("eventForm");
+    form.style.display = form.style.display === "block" ? "none" : "block";
+  }
+  
+  function cancelAdd() {
+    document.getElementById("eventForm").reset();
+    document.getElementById("eventForm").style.display = "none";
     editEventId = null;
     editEventSource = null;
     document.getElementById("rosterSection").style.display = "block";
-  } else {
-    const rosterFile = document.getElementById("roster").files[0];
-    const id = generateId();
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const rosterBase64 = event.target.result;
-      const newEvent = {
-        id, teacher, course, description, location, date, recurringDays: recurring,
-        createdBy: "Admin",
-        rosterFilename: rosterFile.name,
-        rosterFileBase64: rosterBase64
+    document.getElementById("formSubmitBtn").textContent = "Add to Table";
+  }
+  
+  function goBack() {
+    window.location.href = "index.html";
+  }
+  
+  function submitEvent(e) {
+    e.preventDefault();
+    
+    const teacher = document.getElementById("teacher").value;
+    const course = document.getElementById("course").value;
+    const description = document.getElementById("description").value;
+    const location = document.getElementById("location").value;
+    const date = document.getElementById("date").value;
+    const recurring = Array.from(document.querySelectorAll('#recurringDays input:checked')).map(input => input.value);
+  
+    if (editEventId) {
+      let events = JSON.parse(localStorage.getItem(editEventSource) || "[]");
+      const index = events.findIndex(e => e.id === editEventId);
+      if (index !== -1) {
+        events[index].teacher = teacher;
+        events[index].course = course;
+        events[index].description = description;
+        events[index].location = location;
+        events[index].date = date;
+        events[index].recurringDays = recurring;
+        localStorage.setItem(editEventSource, JSON.stringify(events));
+      }
+      editEventId = null;
+      editEventSource = null;
+      document.getElementById("rosterSection").style.display = "block";
+    } else {
+      const rosterFile = document.getElementById("roster").files[0];
+      const id = generateId();
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const rosterBase64 = event.target.result;
+        const newEvent = {
+          id, teacher, course, description, location, date, recurringDays: recurring,
+          createdBy: "Admin",
+          rosterFilename: rosterFile.name,
+          rosterFileBase64: rosterBase64
+        };
+        const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+        adminEvents.push(newEvent);
+        localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+        displayTable();
+        cancelAdd();
       };
-      const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-      adminEvents.push(newEvent);
-      localStorage.setItem('adminTable', JSON.stringify(adminEvents));
-      displayTable();
-      cancelAdd();
-    };
-    reader.readAsDataURL(rosterFile);
-    return;
+      reader.readAsDataURL(rosterFile);
+      return;
+    }
+  
+    displayTable();
+    cancelAdd();
   }
-
-  displayTable();
-  cancelAdd();
-}
-
-function createRow(eventObj) {
-  const tr = document.createElement("tr");
-  tr.className = (eventObj.createdBy === "Admin") ? "admin-row" : "teacher-row";
-
-  const rosterCell = eventObj.rosterFileBase64
-    ? `<button onclick="downloadRoster('${eventObj.id}')">Download</button>`
-    : `N/A`;
-
-  tr.innerHTML = `
-    <td>${eventObj.teacher || eventObj.instructor || "Unknown"}</td>
-    <td>${eventObj.course || eventObj.name || "Unknown"}</td>
-    <td>${eventObj.description || "No description"}</td>
-    <td>${rosterCell}</td>
-    <td>${eventObj.location || "Unknown"}</td>
-    <td>${eventObj.date || "Unknown"}</td>
-    <td>${(eventObj.recurringDays || eventObj.recurring || []).join(", ")}</td>
-    <td>${eventObj.createdBy || "Teacher"}</td>
-    <td><button onclick="viewCheckIns('${eventObj.id}')">View</button></td>
-    <td class="action-buttons">
-      <button onclick="editRow(this, '${eventObj.id}')">Edit</button>
-      <button onclick="deleteRow('${eventObj.id}')">Delete</button>
-    </td>
-  `;
-  return tr;
-}
-
-function displayTable() {
-  const tbody = document.querySelector("#adminTable tbody");
-  tbody.innerHTML = "";
-
-  const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-
-  teacherEvents = teacherEvents.map(event => ({
-    ...event,
-    createdBy: event.createdBy || "Teacher"
-  }));
-
-  const allEvents = [...adminEvents, ...teacherEvents];
-  allEvents.forEach(event => {
-    tbody.appendChild(createRow(event));
-  });
-}
-
-function downloadRoster(id) {
-  const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
-                  ...JSON.parse(localStorage.getItem('events') || "[]")];
-  const event = events.find(e => e.id === id);
-  if (event && event.rosterFileBase64) {
-    const link = document.createElement('a');
-    link.href = event.rosterFileBase64;
-    link.download = event.rosterFilename;
-    link.click();
+  
+  function createRow(eventObj) {
+    const tr = document.createElement("tr");
+    tr.className = (eventObj.createdBy === "Admin") ? "admin-row" : "teacher-row";
+  
+    const rosterCell = eventObj.rosterFileBase64
+      ? `<button onclick="downloadRoster('${eventObj.id}')">Download</button>`
+      : `N/A`;
+  
+    tr.innerHTML = `
+      <td>${eventObj.teacher || eventObj.instructor || "Unknown"}</td>
+      <td>${eventObj.course || eventObj.name || "Unknown"}</td>
+      <td>${eventObj.description || "No description"}</td>
+      <td>${rosterCell}</td>
+      <td>${eventObj.location || "Unknown"}</td>
+      <td>${eventObj.date || "Unknown"}</td>
+      <td>${(eventObj.recurringDays || eventObj.recurring || []).join(", ")}</td>
+      <td>${eventObj.createdBy || "Teacher"}</td>
+      <td><button onclick="viewCheckIns('${eventObj.id}')">View</button></td>
+      <td class="action-buttons">
+        <button onclick="editRow('${eventObj.id}')">Edit</button>
+        <button onclick="deleteRow('${eventObj.id}')">Delete</button>
+      </td>
+    `;
+    return tr;
   }
-}
-
-function viewCheckIns(id) {
-  window.location.href = `reports.html?classId=${id}`;
-}
-
-function deleteRow(id) {
-  if (!confirm("Delete this entry?")) return;
-
-  let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-
-  adminEvents = adminEvents.filter(e => e.id !== id);
-  teacherEvents = teacherEvents.filter(e => e.id !== id);
-
-  localStorage.setItem('adminTable', JSON.stringify(adminEvents));
-  localStorage.setItem('events', JSON.stringify(teacherEvents));
-
-  displayTable();
-}
-
-function editRow(button, id) {
-  const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-
-  let event = adminEvents.find(e => e.id === id);
-  if (event) {
-    editEventSource = "adminTable";
-  } else {
-    event = teacherEvents.find(e => e.id === id);
-    if (event) {
-      editEventSource = "events";
+  
+  function displayTable() {
+    const tbody = document.querySelector("#adminTable tbody");
+    tbody.innerHTML = "";
+  
+    const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+    let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  
+    teacherEvents = teacherEvents.map(event => ({
+      ...event,
+      createdBy: event.createdBy || "Teacher"
+    }));
+  
+    const allEvents = [...adminEvents, ...teacherEvents];
+    allEvents.forEach(event => {
+      tbody.appendChild(createRow(event));
+    });
+  }
+  
+  function downloadRoster(id) {
+    const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+                    ...JSON.parse(localStorage.getItem('events') || "[]")];
+    const event = events.find(e => e.id === id);
+    if (event && event.rosterFileBase64) {
+      const link = document.createElement('a');
+      link.href = event.rosterFileBase64;
+      link.download = event.rosterFilename;
+      link.click();
     }
   }
-
-  if (!event) {
-    alert("Event not found!");
-    return;
+  
+  function viewCheckIns(id) {
+    window.location.href = `reports.html?classId=${id}`;
   }
-
-  document.getElementById("teacher").value = event.teacher || event.instructor || "";
-  document.getElementById("course").value = event.course || event.name || "";
-  document.getElementById("description").value = event.description || "";
-  document.getElementById("location").value = event.location || "";
-  document.getElementById("date").value = event.date || "";
-
-  // Handle recurring days
-  document.querySelectorAll('#recurringDays input').forEach(input => {
-    input.checked = (event.recurringDays || event.recurring || []).includes(input.value);
-  });
-
-  document.getElementById("rosterSection").style.display = "none";
-  editEventId = id;
-
-  document.getElementById("formSubmitBtn").textContent = "Save Changes";
-  toggleForm();
-}
-
-function downloadCSV() {
-  let csv = "Teacher,Course,Description,Location,Date,Recurring,Created By\n";
-  const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
-                  ...JSON.parse(localStorage.getItem('events') || "[]")];
-  events.forEach(e => {
-    csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.location || ""},${e.date || ""},"${(e.recurringDays || e.recurring || []).join(" ")}",${e.createdBy || "Teacher"}\n`;
-  });
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "admin_table.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function filterTable() {
-  const input = document.getElementById("searchInput").value.toLowerCase();
-  document.querySelectorAll("#adminTable tbody tr").forEach(row => {
-    const text = row.innerText.toLowerCase();
-    row.style.display = text.includes(input) ? "" : "none";
-  });
-}
-
-window.onload = displayTable;
-</script>
-
-</body>
-</html>
+  
+  function deleteRow(id) {
+    if (!confirm("Delete this entry?")) return;
+  
+    let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+    let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  
+    adminEvents = adminEvents.filter(e => e.id !== id);
+    teacherEvents = teacherEvents.filter(e => e.id !== id);
+  
+    localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+    localStorage.setItem('events', JSON.stringify(teacherEvents));
+  
+    displayTable();
+  }
+  
+  function editRow(id) {
+    const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+    const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  
+    let event = adminEvents.find(e => e.id === id);
+    if (event) {
+      editEventSource = "adminTable";
+    } else {
+      event = teacherEvents.find(e => e.id === id);
+      if (event) {
+        editEventSource = "events";
+      }
+    }
+  
+    if (!event) {
+      alert("Event not found!");
+      return;
+    }
+  
+    document.getElementById("teacher").value = event.teacher || event.instructor || "";
+    document.getElementById("course").value = event.course || event.name || "";
+    document.getElementById("description").value = event.description || "";
+    document.getElementById("location").value = event.location || "";
+    document.getElementById("date").value = event.date || "";
+  
+    document.querySelectorAll('#recurringDays input').forEach(input => {
+      input.checked = (event.recurringDays || event.recurring || []).includes(input.value);
+    });
+  
+    document.getElementById("rosterSection").style.display = "none";
+    editEventId = id;
+  
+    document.getElementById("formSubmitBtn").textContent = "Save Changes";
+    toggleForm();
+  }
+  
+  function downloadCSV() {
+    let csv = "Teacher,Course,Description,Location,Date,Recurring,Created By\n";
+    const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+                    ...JSON.parse(localStorage.getItem('events') || "[]")];
+    events.forEach(e => {
+      csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.location || ""},${e.date || ""},"${(e.recurringDays || e.recurring || []).join(" ")}",${e.createdBy || "Teacher"}\n`;
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "admin_table.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  function filterTable() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    document.querySelectorAll("#adminTable tbody tr").forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(input) ? "" : "none";
+    });
+  }
+  
+  window.onload = displayTable;
+  </script>
+  
+  </body>
+  </html>
