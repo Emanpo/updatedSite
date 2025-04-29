@@ -4,108 +4,31 @@
   <meta charset="UTF-8" />
   <title>Teacher Event Library</title>
   <style>
+    /* (Same CSS as before) */
     body {
       background-color: #003366;
       font-family: Arial, sans-serif;
       padding: 20px;
       color: white;
     }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .search-container {
-      text-align: right;
-      margin-bottom: 10px;
-      position: relative;
-      max-width: 300px;
-      float: right;
-    }
-
-    .search-container input {
-      padding: 10px 35px 10px 12px;
-      width: 100%;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    .search-container .search-icon {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 18px;
-      color: #888;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .top-bar .search-container {
-      float: none;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      color: black;
-    }
-
-    th, td {
-      border: 1px solid black;
-      padding: 12px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    select, button.action {
-      padding: 6px;
-      border: 1px solid #aaa;
-      border-radius: 4px;
-      background-color: #f9f9f9;
-      cursor: pointer;
-    }
-
-    .action-buttons button {
-      margin-right: 5px;
-    }
-
-    #buttonContainer {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-    }
-
-    #downloadBtn, #saveChangesBtn, #goBackBtn {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #downloadBtn:hover, #saveChangesBtn:hover, #goBackBtn:hover {
-      background-color: #218838;
-    }
-
-    #saveChangesBtn {
-      display: none;
-    }
+    h1 { text-align: center; margin-bottom: 10px; }
+    .search-container { text-align: right; margin-bottom: 10px; position: relative; max-width: 300px; float: right; }
+    .search-container input { padding: 10px 35px 10px 12px; width: 100%; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+    .search-container .search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #888; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .top-bar .search-container { float: none; }
+    table { width: 100%; border-collapse: collapse; background-color: white; color: black; }
+    th, td { border: 1px solid black; padding: 12px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    select, button.action { padding: 6px; border: 1px solid #aaa; border-radius: 4px; background-color: #f9f9f9; cursor: pointer; }
+    .action-buttons button { margin-right: 5px; }
+    #buttonContainer { margin-top: 20px; display: flex; gap: 10px; }
+    #downloadBtn, #saveChangesBtn, #goBackBtn { padding: 10px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    #downloadBtn:hover, #saveChangesBtn:hover, #goBackBtn:hover { background-color: #218838; }
+    #saveChangesBtn { display: none; }
   </style>
 </head>
+
 <body>
 
   <div class="top-bar">
@@ -130,7 +53,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic rows will load here -->
+      <!-- Dynamic rows load here -->
     </tbody>
   </table>
 
@@ -149,30 +72,41 @@
     window.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = "";
 
-      const events = JSON.parse(localStorage.getItem("events")) || [];
-      const seen = new Set();
+      let events = [];
+      try {
+        const storedEvents = localStorage.getItem("events");
+        events = storedEvents ? JSON.parse(storedEvents) : [];
+      } catch (error) {
+        console.error("Failed to load events from localStorage", error);
+        events = [];
+      }
+
+      console.log("Loaded events:", events); // <-- For debugging
+
+      if (!Array.isArray(events)) {
+        console.error("Events data is not an array");
+        events = [];
+      }
 
       events.forEach(event => {
-        const key = `${event.teacher}|${event.course}|${event.date}`;
-        if (seen.has(key)) return;
-        seen.add(key);
+        if (!event || typeof event !== "object") return; // skip bad data
 
         const row = document.createElement("tr");
-        row.dataset.event = JSON.stringify(event); // store full original event
+        row.dataset.event = JSON.stringify(event);
 
         row.innerHTML = `
-          <td>${event.teacher}</td>
-          <td>${event.course}</td>
-          <td>${event.description}</td>
+          <td>${event.teacher || ''}</td>
+          <td>${event.course || ''}</td>
+          <td>${event.description || ''}</td>
           <td>
             <select disabled>
               <option>${event.roster || "0 students"}</option>
               <option>Download roster</option>
             </select>
           </td>
-          <td>${event.location}</td>
-          <td>${event.date}</td>
-          <td>${event.recurring}</td>
+          <td>${event.location || ''}</td>
+          <td>${event.date || ''}</td>
+          <td>${event.recurring || ''}</td>
           <td class="action-buttons">
             <button class="action" onclick="editRow(this)">Edit</button>
             <button class="action" onclick="deleteRow(this)">Delete</button>
@@ -195,12 +129,10 @@
       const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))"); // Skip actions and roster
       editableCells.forEach(cell => {
         cell.contentEditable = "true";
-        cell.style.backgroundColor = "#ffffcc"; // light yellow
+        cell.style.backgroundColor = "#ffffcc"; // Light yellow
       });
       const rosterSelect = row.querySelector("select");
-      if (rosterSelect) {
-        rosterSelect.disabled = false;
-      }
+      if (rosterSelect) rosterSelect.disabled = false;
       showSaveButton();
     }
 
@@ -212,7 +144,7 @@
       saveChangesBtn.style.display = "none";
     }
 
-    document.getElementById("saveChangesBtn").addEventListener("click", function () {
+    saveChangesBtn.addEventListener("click", () => {
       const rows = tbody.querySelectorAll("tr");
       const updatedEvents = [];
 
@@ -233,7 +165,6 @@
 
         updatedEvents.push(updatedEvent);
 
-        // Reset editable
         const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(4))");
         editableCells.forEach(cell => {
           cell.contentEditable = "false";
@@ -241,9 +172,7 @@
         });
 
         const rosterSelect = row.querySelector("select");
-        if (rosterSelect) {
-          rosterSelect.disabled = true;
-        }
+        if (rosterSelect) rosterSelect.disabled = true;
       });
 
       localStorage.setItem("events", JSON.stringify(updatedEvents));
@@ -251,7 +180,7 @@
       hideSaveButton();
     });
 
-    document.getElementById("downloadBtn").addEventListener("click", function () {
+    document.getElementById("downloadBtn").addEventListener("click", () => {
       let csvContent = "data:text/csv;charset=utf-8,";
 
       const rows = table.querySelectorAll("tr");
@@ -270,12 +199,12 @@
       document.body.removeChild(link);
     });
 
-    document.getElementById("goBackBtn").addEventListener("click", function () {
+    document.getElementById("goBackBtn").addEventListener("click", () => {
       window.location.href = "teacher-dashboard.html";
     });
 
     const searchInput = document.getElementById("searchInput");
-    searchInput.addEventListener("keyup", function () {
+    searchInput.addEventListener("keyup", () => {
       const filter = searchInput.value.toLowerCase();
       const rows = tbody.getElementsByTagName("tr");
 
