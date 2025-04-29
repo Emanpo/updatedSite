@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Create New Event</title>
-  <link rel="stylesheet" href="styles.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -37,10 +36,7 @@
       font-weight: bold;
       margin-bottom: 8px;
     }
-    input[type="text"],
-    input[type="date"],
-    select,
-    input[type="file"] {
+    input[type="text"], input[type="date"], select, input[type="file"] {
       width: 100%;
       padding: 10px;
       font-size: 16px;
@@ -98,7 +94,7 @@
 
       <div class="form-group">
         <label for="roster">Upload Roster (CSV)</label>
-        <input type="file" id="roster" name="roster" accept=".csv" required />
+        <input type="file" id="roster" name="roster" accept=".csv" />
       </div>
 
       <div class="form-group">
@@ -153,27 +149,48 @@
       const description = document.getElementById("description").value;
       const location = document.getElementById("location").value;
       const date = document.getElementById("date").value;
-      const roster = document.getElementById("roster").files[0]?.name || "N/A";
+      const rosterFile = document.getElementById("roster").files[0];
       const saveAsTemplate = document.getElementById("saveAsTemplate").checked;
+      const recurring = recurringCheckbox.checked;
       const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
 
+      const id = Date.now();
+
+      // Build the event object
       const event = {
-        id: Date.now(),
+        id,
         teacher,
         course,
         description,
         location,
         date,
-        roster,
-        recurring: recurringCheckbox.checked,
-        days,
-        createdBy: "Teacher" // to appear in admin dashboard
+        roster: rosterFile ? rosterFile.name : "No roster",
+        recurring,
+        days
       };
 
+      // Save to Teacher 'events'
       const events = JSON.parse(localStorage.getItem("events") || "[]");
       events.push(event);
       localStorage.setItem("events", JSON.stringify(events));
 
+      // Also save to Admin 'adminTable'
+      const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
+      adminEvents.push({
+        id,
+        teacher,
+        course,
+        description,
+        location,
+        date,
+        recurringDays: days,
+        createdBy: "Teacher",
+        rosterFilename: rosterFile ? rosterFile.name : "No roster",
+        rosterFileBase64: null
+      });
+      localStorage.setItem("adminTable", JSON.stringify(adminEvents));
+
+      // Optionally save as a Template
       if (saveAsTemplate) {
         const templates = JSON.parse(localStorage.getItem("templates") || "[]");
         templates.push({
@@ -188,12 +205,11 @@
       alert("Event created successfully!");
 
       const params = new URLSearchParams({
-        id: event.id,
+        id,
         course,
         date,
         location
       });
-
       window.location.href = "QR-display.html?" + params.toString();
     });
   </script>
