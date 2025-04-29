@@ -360,12 +360,15 @@ function deleteRow(id) {
 function editRow(button, id) {
   const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-  let event = adminEvents.find(e => e.id === id);
-  editEventSource = "adminTable";
 
-  if (!event) {
+  let event = adminEvents.find(e => e.id === id);
+  if (event) {
+    editEventSource = "adminTable";
+  } else {
     event = teacherEvents.find(e => e.id === id);
-    editEventSource = "events";
+    if (event) {
+      editEventSource = "events";
+    }
   }
 
   if (!event) {
@@ -379,6 +382,7 @@ function editRow(button, id) {
   document.getElementById("location").value = event.location || "";
   document.getElementById("date").value = event.date || "";
 
+  // Handle recurring days
   document.querySelectorAll('#recurringDays input').forEach(input => {
     input.checked = (event.recurringDays || event.recurring || []).includes(input.value);
   });
