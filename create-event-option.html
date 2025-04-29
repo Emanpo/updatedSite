@@ -192,20 +192,25 @@
   }
 
   const selectedTemplate = templates[selectedIndex];
+
+  // Build full event with all necessary fields
   const newEvent = {
     id: Date.now(), // Unique event ID
-    name: selectedTemplate.name,
-    instructor: selectedTemplate.instructor || 'Unknown',
-    location: location,
-    date: date
+    name: selectedTemplate.name || 'Unnamed Class',
+    instructor: selectedTemplate.instructor || 'Unknown Instructor',
+    course: selectedTemplate.course || 'Unknown Course',
+    description: selectedTemplate.description || 'No Description Provided',
+    location: location, // User selected
+    date: date,         // User selected
+    recurring: selectedTemplate.recurring || 'None'
   };
 
-  // Save to events
+  // Save into the global events list
   const events = JSON.parse(localStorage.getItem('events')) || [];
   events.push(newEvent);
   localStorage.setItem('events', JSON.stringify(events));
 
-  // Redirect to QR code display
+  // Redirect to QR code page
   const params = new URLSearchParams({
     id: newEvent.id,
     name: newEvent.name,
