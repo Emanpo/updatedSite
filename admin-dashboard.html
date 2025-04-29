@@ -179,7 +179,7 @@ function submitEvent(e) {
 
 function createRow(eventObj) {
   const tr = document.createElement("tr");
-  tr.className = eventObj.createdBy === "Admin" ? "admin-row" : "teacher-row";
+  tr.className = (eventObj.createdBy === "Admin") ? "admin-row" : "teacher-row";
 
   const rosterCell = eventObj.rosterFileBase64
     ? `<button onclick="downloadRoster('${eventObj.id}')">Download</button>`
@@ -208,7 +208,14 @@ function displayTable() {
   tbody.innerHTML = "";
 
   const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+
+  // Ensure all teacher events have 'createdBy' filled
+  teacherEvents = teacherEvents.map(event => ({
+    ...event,
+    createdBy: event.createdBy || "Teacher"
+  }));
+
   const allEvents = [...adminEvents, ...teacherEvents];
 
   allEvents.forEach(event => {
