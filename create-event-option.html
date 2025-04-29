@@ -124,7 +124,7 @@
   <script>
     function loadTemplates() {
       const templateSelect = document.getElementById('templateSelect');
-      templateSelect.innerHTML = '<option value="">-- Select a Created Class --</option>'; // reset
+      templateSelect.innerHTML = '<option value="">-- Select a Created Class --</option>'; 
       const templates = JSON.parse(localStorage.getItem('templates')) || [];
 
       templates.forEach((template, index) => {
@@ -146,11 +146,10 @@
         const selectedTemplate = templates[selectedIndex];
         const locationDropdown = document.getElementById('eventLocation');
 
-        // Set the location dropdown if matches Remote/Building
         if (selectedTemplate.location === "Remote" || selectedTemplate.location === "Building") {
           locationDropdown.value = selectedTemplate.location;
         } else {
-          locationDropdown.value = ""; // default empty if unknown
+          locationDropdown.value = "";
         }
 
         document.getElementById('eventDate').value = selectedTemplate.date || '';
@@ -170,9 +169,9 @@
       const selectedIndex = templateSelect.value;
 
       if (selectedIndex !== '') {
-        templates.splice(selectedIndex, 1); // remove selected template
+        templates.splice(selectedIndex, 1); 
         localStorage.setItem('templates', JSON.stringify(templates));
-        loadTemplates(); // refresh dropdown
+        loadTemplates(); 
         document.getElementById('extraFields').style.display = 'none';
         document.getElementById('deleteBtn').style.display = 'none';
         alert('Template deleted!');
@@ -180,46 +179,52 @@
     }
 
     function goToQRCodePage() {
-  const location = document.getElementById('eventLocation').value;
-  const date = document.getElementById('eventDate').value;
-  const templateSelect = document.getElementById('templateSelect');
-  const templates = JSON.parse(localStorage.getItem('templates')) || [];
-  const selectedIndex = templateSelect.value;
+      const location = document.getElementById('eventLocation').value;
+      const date = document.getElementById('eventDate').value;
+      const templateSelect = document.getElementById('templateSelect');
+      const templates = JSON.parse(localStorage.getItem('templates')) || [];
+      const selectedIndex = templateSelect.value;
 
-  if (!location || !date || selectedIndex === '') {
-    alert("Please select a template, location, and date.");
-    return;
-  }
+      if (!location || !date || selectedIndex === '') {
+        alert("Please select a template, location, and date.");
+        return;
+      }
 
-  const selectedTemplate = templates[selectedIndex];
+      const selectedTemplate = templates[selectedIndex];
 
-  // Build full event with all necessary fields
-  const newEvent = {
-    id: Date.now(), // Unique event ID
-    name: selectedTemplate.name || 'Unnamed Class',
-    instructor: selectedTemplate.instructor || 'Unknown Instructor',
-    course: selectedTemplate.course || 'Unknown Course',
-    description: selectedTemplate.description || 'No Description Provided',
-    location: location, // User selected
-    date: date,         // User selected
-    recurring: selectedTemplate.recurring || 'None'
-  };
+      const newEvent = {
+        id: 'class-' + Math.random().toString(36).substr(2, 9),
+        teacher: selectedTemplate.instructor || 'Unknown Instructor',
+        course: selectedTemplate.course || 'Unknown Course',
+        description: selectedTemplate.description || 'No Description Provided',
+        location: location,
+        date: date,
+        recurringDays: selectedTemplate.recurring ? selectedTemplate.recurring.split(',').map(day => day.trim()) : [],
+        createdBy: "Teacher",
+        rosterFilename: null,
+        rosterFileBase64: null
+      };
 
-  // Save into the global events list
-  const events = JSON.parse(localStorage.getItem('events')) || [];
-  events.push(newEvent);
-  localStorage.setItem('events', JSON.stringify(events));
+      // Save to 'events' for library
+      const events = JSON.parse(localStorage.getItem('events')) || [];
+      events.push(newEvent);
+      localStorage.setItem('events', JSON.stringify(events));
 
-  // Redirect to QR code page
-  const params = new URLSearchParams({
-    id: newEvent.id,
-    name: newEvent.name,
-    instructor: newEvent.instructor,
-    location: newEvent.location,
-    date: newEvent.date
-  });
-  window.location.href = 'QR-display.html?' + params.toString();
-}
+      // Save to 'adminTable' for admin-dashboard
+      const adminEvents = JSON.parse(localStorage.getItem('adminTable')) || [];
+      adminEvents.push(newEvent);
+      localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+
+      // Redirect to QR page
+      const params = new URLSearchParams({
+        id: newEvent.id,
+        course: newEvent.course,
+        teacher: newEvent.teacher,
+        location: newEvent.location,
+        date: newEvent.date
+      });
+      window.location.href = 'QR-display.html?' + params.toString();
+    }
 
     window.onload = loadTemplates;
   </script>
