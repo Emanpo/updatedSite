@@ -180,14 +180,41 @@
     }
 
     function goToQRCodePage() {
-      const location = document.getElementById('eventLocation').value;
-      const date = document.getElementById('eventDate').value;
-      const params = new URLSearchParams({
-        location,
-        date
-      });
-      window.location.href = 'QR-display.html?' + params.toString();
-    }
+  const location = document.getElementById('eventLocation').value;
+  const date = document.getElementById('eventDate').value;
+  const templateSelect = document.getElementById('templateSelect');
+  const templates = JSON.parse(localStorage.getItem('templates')) || [];
+  const selectedIndex = templateSelect.value;
+
+  if (!location || !date || selectedIndex === '') {
+    alert("Please select a template, location, and date.");
+    return;
+  }
+
+  const selectedTemplate = templates[selectedIndex];
+  const newEvent = {
+    id: Date.now(), // Unique event ID
+    name: selectedTemplate.name,
+    instructor: selectedTemplate.instructor || 'Unknown',
+    location: location,
+    date: date
+  };
+
+  // Save to events
+  const events = JSON.parse(localStorage.getItem('events')) || [];
+  events.push(newEvent);
+  localStorage.setItem('events', JSON.stringify(events));
+
+  // Redirect to QR code display
+  const params = new URLSearchParams({
+    id: newEvent.id,
+    name: newEvent.name,
+    instructor: newEvent.instructor,
+    location: newEvent.location,
+    date: newEvent.date
+  });
+  window.location.href = 'QR-display.html?' + params.toString();
+}
 
     window.onload = loadTemplates;
   </script>
