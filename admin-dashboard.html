@@ -142,7 +142,6 @@
   </div>
 </div>
 
-<!-- Add Event Form -->
 <form id="eventForm" onsubmit="submitEvent(event)">
   <label>Teacher</label>
   <input type="text" id="teacher" required>
@@ -153,8 +152,10 @@
   <label>Description</label>
   <input type="text" id="description" required>
 
-  <label>Roster File (CSV)</label>
-  <input type="file" id="roster" accept=".csv" required>
+  <div id="rosterSection">
+    <label>Roster File (CSV)</label>
+    <input type="file" id="roster" accept=".csv" required>
+  </div>
 
   <label>Location</label>
   <select id="location" required>
@@ -175,12 +176,11 @@
   </div>
 
   <div class="button-group">
-    <button type="submit">Add to Table</button>
+    <button type="submit" id="formSubmitBtn">Add to Table</button>
     <button type="button" id="cancelFormBtn" onclick="cancelAdd()">Cancel</button>
   </div>
 </form>
 
-<!-- Events Table -->
 <table id="adminTable">
   <thead>
     <tr>
@@ -206,7 +206,8 @@
 </div>
 
 <script>
-let editRowRef = null;
+let editEventId = null;
+let editEventSource = null;
 
 function generateId() {
   return 'class-' + Math.random().toString(36).substr(2, 9);
@@ -220,6 +221,10 @@ function toggleForm() {
 function cancelAdd() {
   document.getElementById("eventForm").reset();
   document.getElementById("eventForm").style.display = "none";
+  editEventId = null;
+  editEventSource = null;
+  document.getElementById("rosterSection").style.display = "block";
+  document.getElementById("formSubmitBtn").textContent = "Add to Table";
 }
 
 function goBack() {
@@ -228,31 +233,53 @@ function goBack() {
 
 function submitEvent(e) {
   e.preventDefault();
+  
   const teacher = document.getElementById("teacher").value;
   const course = document.getElementById("course").value;
   const description = document.getElementById("description").value;
-  const rosterFile = document.getElementById("roster").files[0];
   const location = document.getElementById("location").value;
   const date = document.getElementById("date").value;
   const recurring = Array.from(document.querySelectorAll('#recurringDays input:checked')).map(input => input.value);
-  const id = generateId();
 
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const rosterBase64 = event.target.result;
-    const newEvent = {
-      id, teacher, course, description, location, date, recurringDays: recurring,
-      createdBy: "Admin",
-      rosterFilename: rosterFile.name,
-      rosterFileBase64: rosterBase64
+  if (editEventId) {
+    let events = JSON.parse(localStorage.getItem(editEventSource) || "[]");
+    const index = events.findIndex(e => e.id === editEventId);
+    if (index !== -1) {
+      events[index].teacher = teacher;
+      events[index].course = course;
+      events[index].description = description;
+      events[index].location = location;
+      events[index].date = date;
+      events[index].recurringDays = recurring;
+      localStorage.setItem(editEventSource, JSON.stringify(events));
+    }
+    editEventId = null;
+    editEventSource = null;
+    document.getElementById("rosterSection").style.display = "block";
+  } else {
+    const rosterFile = document.getElementById("roster").files[0];
+    const id = generateId();
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const rosterBase64 = event.target.result;
+      const newEvent = {
+        id, teacher, course, description, location, date, recurringDays: recurring,
+        createdBy: "Admin",
+        rosterFilename: rosterFile.name,
+        rosterFileBase64: rosterBase64
+      };
+      const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+      adminEvents.push(newEvent);
+      localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+      displayTable();
+      cancelAdd();
     };
-    const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-    adminEvents.push(newEvent);
-    localStorage.setItem('adminTable', JSON.stringify(adminEvents));
-    displayTable();
-    cancelAdd();
-  };
-  reader.readAsDataURL(rosterFile);
+    reader.readAsDataURL(rosterFile);
+    return;
+  }
+
+  displayTable();
+  cancelAdd();
 }
 
 function createRow(eventObj) {
@@ -331,7 +358,36 @@ function deleteRow(id) {
 }
 
 function editRow(button, id) {
-  alert("Simple edit is disabled right now to protect uploaded files. Delete and re-add if needed.");
+  const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+  let event = adminEvents.find(e => e.id === id);
+  editEventSource = "adminTable";
+
+  if (!event) {
+    event = teacherEvents.find(e => e.id === id);
+    editEventSource = "events";
+  }
+
+  if (!event) {
+    alert("Event not found!");
+    return;
+  }
+
+  document.getElementById("teacher").value = event.teacher || event.instructor || "";
+  document.getElementById("course").value = event.course || event.name || "";
+  document.getElementById("description").value = event.description || "";
+  document.getElementById("location").value = event.location || "";
+  document.getElementById("date").value = event.date || "";
+
+  document.querySelectorAll('#recurringDays input').forEach(input => {
+    input.checked = (event.recurringDays || event.recurring || []).includes(input.value);
+  });
+
+  document.getElementById("rosterSection").style.display = "none";
+  editEventId = id;
+
+  document.getElementById("formSubmitBtn").textContent = "Save Changes";
+  toggleForm();
 }
 
 function downloadCSV() {
