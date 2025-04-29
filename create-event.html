@@ -155,8 +155,6 @@
       const date = document.getElementById("date").value;
       const roster = document.getElementById("roster").files[0]?.name || "N/A";
       const saveAsTemplate = document.getElementById("saveAsTemplate").checked;
-
-      const recurring = recurringCheckbox.checked;
       const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
 
       const event = {
@@ -167,8 +165,9 @@
         location,
         date,
         roster,
-        recurring,
-        days
+        recurring: recurringCheckbox.checked,
+        days,
+        createdBy: "Teacher" // to appear in admin dashboard
       };
 
       const events = JSON.parse(localStorage.getItem("events") || "[]");
