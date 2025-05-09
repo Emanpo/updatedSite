@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Create New Event</title>
+  <title>Create New Class</title>
   <style>
     body { font-family: Arial, sans-serif; background-color: #002D74; padding: 40px; }
     h1 { text-align: center; margin-bottom: 20px; color: white; }
@@ -11,11 +11,11 @@
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: bold; margin-bottom: 8px; }
     input[type="text"], input[type="date"], select, input[type="file"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-    .checkbox-group { display: flex; gap: 10px; margin-top: 10px; }
-    .form-actions { display: flex; justify-content: space-between; margin-top: 20px; }
+    .form-actions { display: flex; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; gap: 10px; }
     button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; }
     .submit-btn, .clear-btn { background-color: #007bff; color: #fff; }
-    .template-save { margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+    .go-back-btn { background-color: #dc3545; color: white; }
+    .go-back-btn:hover { background-color: #c82333; }
   </style>
 </head>
 <body>
@@ -50,34 +50,19 @@
       <label for="date">Date</label>
       <input type="date" id="date" name="date" required />
     </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="recurringCheckbox" /> Recurring</label>
-      <div id="recurringDays" class="checkbox-group" style="display: none;">
-        <label><input type="checkbox" name="days" value="Mon"> M</label>
-        <label><input type="checkbox" name="days" value="Tue"> T</label>
-        <label><input type="checkbox" name="days" value="Wed"> W</label>
-        <label><input type="checkbox" name="days" value="Thu"> T</label>
-        <label><input type="checkbox" name="days" value="Fri"> F</label>
-      </div>
-    </div>
-    <div class="form-group template-save">
-      <input type="checkbox" id="saveAsTemplate" />
-      <label for="saveAsTemplate">Save as Template</label>
-    </div>
+
     <div class="form-actions">
       <button type="submit" class="submit-btn">Submit</button>
       <button type="reset" class="clear-btn">Clear</button>
+      <button type="button" class="go-back-btn" onclick="goBack()">Go Back</button>
     </div>
   </form>
 </div>
 
 <script>
-const recurringCheckbox = document.getElementById('recurringCheckbox');
-const recurringDays = document.getElementById('recurringDays');
-
-recurringCheckbox.addEventListener('change', function () {
-  recurringDays.style.display = this.checked ? 'flex' : 'none';
-});
+function goBack() {
+  window.location.href = "admin-dashboard"; // Adjust if your route differs
+}
 
 document.getElementById("createEventForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -88,9 +73,6 @@ document.getElementById("createEventForm").addEventListener("submit", function (
   const location = document.getElementById("location").value.trim();
   const date = document.getElementById("date").value.trim();
   const rosterFile = document.getElementById("roster").files[0];
-  const saveAsTemplate = document.getElementById("saveAsTemplate").checked;
-  const recurring = recurringCheckbox.checked;
-  const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
 
   if (!rosterFile) {
     alert("Roster file is required.");
@@ -102,7 +84,7 @@ document.getElementById("createEventForm").addEventListener("submit", function (
     const rosterBase64 = event.target.result;
 
     const newEvent = {
-      id: Date.now(),
+      id: 'class-' + Math.random().toString(36).substr(2, 9),
       teacher,
       course,
       description,
@@ -110,8 +92,8 @@ document.getElementById("createEventForm").addEventListener("submit", function (
       date,
       rosterFilename: rosterFile.name,
       rosterFileBase64: rosterBase64,
-      recurringDays: recurring ? days : [],
-      createdBy: "Teacher"
+      recurringDays: [], // Removed recurring
+      createdBy: "Admin"
     };
 
     // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -122,32 +104,26 @@ document.getElementById("createEventForm").addEventListener("submit", function (
     localStorage.setItem("events", JSON.stringify(events));
     // ------------------------------------------------------------------------------------------------------------------------------------------------
 
-    if (saveAsTemplate) {
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      const templates = JSON.parse(localStorage.getItem("templates") || "[]");
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      templates.push({
-        name: course,
-        teacher,
-        description,
-        location
-      });
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-      localStorage.setItem("templates", JSON.stringify(templates));
-      // ------------------------------------------------------------------------------------------------------------------------------------------------
-    }
+    // Also push to adminTable
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
+    const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
+    adminEvents.push(newEvent);
+    localStorage.setItem("adminTable", JSON.stringify(adminEvents));
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
 
-    alert("Event created successfully!");
+    alert("Class created successfully!");
 
     const params = new URLSearchParams({
       id: newEvent.id,
       course: newEvent.course,
-      date: newEvent.date,
-      location: newEvent.location
+      teacher: newEvent.teacher,
+      location: newEvent.location,
+      date: newEvent.date
     });
 
     window.location.href = "QR-display?" + params.toString();
   };
+
   reader.readAsDataURL(rosterFile);
 });
 </script>

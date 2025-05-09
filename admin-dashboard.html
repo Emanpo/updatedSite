@@ -16,10 +16,6 @@
     tr:hover { background-color: #f1f1f1; }
     .admin-row { background-color: #e6f7ff; }
     .teacher-row { background-color: #fff0e6; }
-    #eventForm { background-color: #004080; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
-    #eventForm label { display: block; margin: 10px 0 5px; }
-    #eventForm input, #eventForm select { width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: none; }
-    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
     .button-group { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .button-group button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
     #addEventBtn, #downloadBtn { background-color: #28a745; color: white; }
@@ -49,7 +45,7 @@
       <th>Roster</th>
       <th>Location</th>
       <th>Date</th>
-      <th>Recurring</th>
+      <!-- Removed Recurring -->
       <th>Created By</th>
       <th>Checked In</th>
       <th>Actions</th>
@@ -59,7 +55,7 @@
 </table>
 
 <div class="button-group">
-  <button id="addEventBtn" onclick="toggleForm()">Add Event</button>
+  <button id="addEventBtn" onclick="redirectToCreate()">Add Class</button>
   <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
   <button id="goBackBtn" onclick="goBack()">Go Back</button>
 </div>
@@ -68,6 +64,7 @@
 function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
+
   // ------------------------------------------------------------------------------------------------------------------------------------------------
   // Need to change localStore to our database
   // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -92,7 +89,7 @@ function loadEvents() {
       <td>${rosterCell}</td>
       <td>${event.location || "Unknown"}</td>
       <td>${event.date || "Unknown"}</td>
-      <td>${(event.recurringDays || event.recurring || []).join(", ")}</td>
+      <!-- Removed Recurring Column -->
       <td>${event.createdBy || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
       <td class="action-buttons">
@@ -144,14 +141,14 @@ function downloadRoster(id) {
 }
 
 function downloadCSV() {
-  let csv = "Teacher,Course,Description,Roster,Location,Date,Recurring,Created By\n";
+  let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
   // ------------------------------------------------------------------------------------------------------------------------------------------------
   const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
                   ...JSON.parse(localStorage.getItem('events') || "[]")];
   // ------------------------------------------------------------------------------------------------------------------------------------------------
 
   events.forEach(e => {
-    csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.rosterFilename || ""},${e.location || ""},${e.date || ""},"${(e.recurringDays || e.recurring || []).join(" ")}",${e.createdBy || "Teacher"}\n`;
+    csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.rosterFilename || ""},${e.location || ""},${e.date || ""},${e.createdBy || "Teacher"}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -171,8 +168,9 @@ function filterTable() {
   });
 }
 
-function toggleForm() {
-  alert("do we wanna add new events?");
+// Redirect to create-event page for admin to create class
+function redirectToCreate() {
+  window.location.href = 'create-event';
 }
 
 function goBack() {

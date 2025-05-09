@@ -30,7 +30,7 @@
       height: 300px;
       margin: 20px 0;
       background-color: white;
-      cursor: pointer; /* Makes it look clickable */
+      cursor: pointer;
     }
 
     .btn {
@@ -52,21 +52,26 @@
       margin-top: 20px;
       font-size: 16px;
     }
+
+    .event-info p {
+      margin: 6px 0;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>QR Code for Your Event</h1>
 
-    <!-- Wrap the image inside an anchor -->
     <a id="qrLink" href="#" target="_blank">
       <img id="qrImage" src="" alt="Event QR Code" />
     </a>
 
     <div class="event-info">
-      <p><strong>Template:</strong> <span id="t"></span></p>
-      <p><strong>Location:</strong> <span id="l"></span></p>
-      <p><strong>Date:</strong> <span id="d"></span></p>
+      <p><strong>Course:</strong> <span id="course"></span></p>
+      <p><strong>Location:</strong> <span id="location"></span></p>
+      <p><strong>Date:</strong> <span id="date"></span></p>
+      <p><strong>Teacher:</strong> <span id="teacher"></span></p>
+      <p><strong>Created By:</strong> <span id="createdBy"></span></p>
     </div>
 
     <button id="downloadBtn" class="btn">Download QR Code</button>
@@ -76,29 +81,33 @@
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      const template = params.get('template') || "N/A";
-      const location = params.get('location') || "N/A";
-      const date = params.get('date') || "N/A";
+      const id = params.get('id') || 'unknown';
+      const course = params.get('course') || 'N/A';
+      const teacher = params.get('teacher') || 'N/A';
+      const location = params.get('location') || 'N/A';
+      const date = params.get('date') || 'N/A';
+      const createdBy = params.get('createdBy') || 'Teacher';
 
-      const classId = template; // Using template name as classId
-      const checkInUrl = `check-in.html?classId=${encodeURIComponent(classId)}`;
-
+      // Use event ID to link to check-in
+      const checkInUrl = `check-in.html?classId=${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');
       const qrLink = document.getElementById('qrLink');
 
       qrImage.src = qrUrl;
-      qrLink.href = checkInUrl; // Make the link clickable to check-in page
+      qrLink.href = checkInUrl;
+
+      document.getElementById('course').textContent = course;
+      document.getElementById('location').textContent = location;
+      document.getElementById('date').textContent = date;
+      document.getElementById('teacher').textContent = teacher;
+      document.getElementById('createdBy').textContent = createdBy;
 
       qrImage.onerror = () => {
         qrImage.alt = 'QR Code failed to load.';
         qrImage.style.border = '2px solid red';
       };
-
-      document.getElementById('t').textContent = template;
-      document.getElementById('l').textContent = location;
-      document.getElementById('d').textContent = date;
 
       document.getElementById("downloadBtn").addEventListener("click", function () {
         const link = document.createElement("a");
