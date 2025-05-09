@@ -86,9 +86,8 @@
       const teacher = params.get('teacher') || 'N/A';
       const location = params.get('location') || 'N/A';
       const date = params.get('date') || 'N/A';
-      const createdBy = params.get('createdBy') || 'Teacher';
+      const createdBy = params.get('createdBy') || 'N/A';
 
-      // Use event ID to link to check-in
       const checkInUrl = `check-in.html?classId=${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
