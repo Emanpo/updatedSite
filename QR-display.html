@@ -83,7 +83,8 @@
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
 
-      const checkInUrl = `check-in.html?classId=${encodeURIComponent(id)}`;
+      // ✅ Fixed this line by removing the extra 'CLASS_ID='
+      const checkInUrl = `student-checkin-login.html?classId=${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');
