@@ -104,6 +104,12 @@
         document.getElementById('date').textContent = event.date || 'N/A';
         document.getElementById('teacher').textContent = event.teacher || 'N/A';
         document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
+      } else {
+        document.getElementById('course').textContent = 'N/A';
+        document.getElementById('location').textContent = 'N/A';
+        document.getElementById('date').textContent = 'N/A';
+        document.getElementById('teacher').textContent = 'N/A';
+        document.getElementById('createdBy').textContent = 'N/A';
       }
 
       qrImage.onerror = () => {
@@ -122,7 +128,7 @@
     });
 
     function continueToDashboard() {
-      const role = localStorage.getItem("role");
+      const role = (localStorage.getItem("role") || "").toLowerCase();
       if (role === "admin") {
         window.location.href = "admin-dashboard.html";
       } else if (role === "teacher") {
