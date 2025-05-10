@@ -118,7 +118,7 @@
 <script>
   function goBack() {
     const role = localStorage.getItem("role") || "";
-    if (role === "admin") {
+    if (role === "Admin") {
       window.location.href = "admin-dashboard.html";
     } else {
       window.location.href = "teacher-dashboard.html";
@@ -155,16 +155,19 @@
         rosterFilename: rosterFile.name,
         rosterFileBase64: rosterBase64,
         recurringDays: [],
-        createdBy: role.charAt(0).toUpperCase() + role.slice(1) // Capitalize role
+        createdBy: role
       };
 
-      const events = JSON.parse(localStorage.getItem("events") || "[]");
-      events.push(newEvent);
-      localStorage.setItem("events", JSON.stringify(events));
-
-      const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
-      adminEvents.push(newEvent);
-      localStorage.setItem("adminTable", JSON.stringify(adminEvents));
+      // ✅ Save to the correct storage based on role
+      if (role === "Admin") {
+        const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
+        adminEvents.push(newEvent);
+        localStorage.setItem("adminTable", JSON.stringify(adminEvents));
+      } else if (role === "Teacher") {
+        const teacherEvents = JSON.parse(localStorage.getItem("events") || "[]");
+        teacherEvents.push(newEvent);
+        localStorage.setItem("events", JSON.stringify(teacherEvents));
+      }
 
       alert("Class created successfully!");
 
