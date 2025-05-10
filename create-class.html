@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Class Template</title>
+  <style>
+    body {
+      background-color: #002D74;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      color: white;
+    }
+
+    .container {
+      background-color: white;
+      color: black;
+      padding: 30px;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .save-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .clear-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .back-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background-color: #218838;
+    }
+
+    .clear-btn:hover {
+      background-color: #e0a800;
+    }
+
+    .back-btn:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Create Class Template</h1>
+    <form id="classTemplateForm">
+      <div class="form-group">
+        <label for="templateName">Template Name</label>
+        <input type="text" id="templateName" name="templateName" required>
+      </div>
+      <div class="form-group">
+        <label for="teacherName">Default Teacher</label>
+        <input type="text" id="teacherName" name="teacherName" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Default Description</label>
+        <textarea id="description" name="description" rows="4"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="save-btn">Save Template</button>
+        <button type="reset" class="clear-btn">Clear</button>
+        <button type="button" class="back-btn" onclick="goBack()">Go Back</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("classTemplateForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const templateName = document.getElementById("templateName").value.trim();
+      const teacherName = document.getElementById("teacherName").value.trim();
+      const description = document.getElementById("description").value.trim();
+
+      if (!templateName || !teacherName) {
+        alert("Template Name and Teacher are required.");
+        return;
+      }
+
+      const newTemplate = {
+        id: 'template-' + Math.random().toString(36).substr(2, 9),
+        templateName,
+        teacherName,
+        description
+      };
+
+      const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
+      templates.push(newTemplate);
+      localStorage.setItem("classTemplates", JSON.stringify(templates));
+
+      alert("Class template saved successfully!");
+      this.reset();
+    });
+
+    function goBack() {
+      window.location.href = "teacher-dashboard.html";
+    }
+  </script>
+
+</body>
+</html>
