@@ -80,12 +80,12 @@
     #addEventBtn:hover, #downloadBtn:hover {
       background-color: #218838;
     }
-    #goBackBtn {
-      background-color: #007bff;
+    #logOffBtn {
+      background-color: #dc3545;
       color: white;
     }
-    #goBackBtn:hover {
-      background-color: #0056b3;
+    #logOffBtn:hover {
+      background-color: #c82333;
     }
     .action-buttons button {
       margin: 2px;
@@ -95,6 +95,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <div class="top-bar">
@@ -123,9 +124,9 @@
 </table>
 
 <div class="button-group">
-  <button id="addEventBtn" onclick="goToCreateEvent()">Add Class</button>
+  <button id="addEventBtn" onclick="window.location.href='create-event.html'">Add Class</button>
   <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
-  <button id="goBackBtn" onclick="goBack()">Go Back</button>
+  <button id="logOffBtn" onclick="logOff()">Log Off</button>
 </div>
 
 <script>
@@ -140,7 +141,7 @@ function loadEvents() {
 
   allEvents.forEach(event => {
     const tr = document.createElement("tr");
-    tr.className = event.createdBy === "Admin" ? "admin-row" : "teacher-row";
+    tr.className = (event.createdBy === "Admin") ? "admin-row" : "teacher-row";
 
     const rosterCell = event.rosterFileBase64
       ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
@@ -170,8 +171,8 @@ function deleteEvent(id) {
   let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
 
-  adminEvents = adminEvents.filter(e => e.id !== id);
-  teacherEvents = teacherEvents.filter(e => e.id !== id);
+  adminEvents = adminEvents.filter(e => e.id != id);
+  teacherEvents = teacherEvents.filter(e => e.id != id);
 
   localStorage.setItem('adminTable', JSON.stringify(adminEvents));
   localStorage.setItem('events', JSON.stringify(teacherEvents));
@@ -181,13 +182,13 @@ function deleteEvent(id) {
 }
 
 function viewCheckIns(id) {
-  window.location.href = `reports?classId=${id}`;
+  window.location.href = `reports.html?classId=${id}`;
 }
 
 function downloadRoster(id) {
-  const allEvents = [...JSON.parse(localStorage.getItem('adminTable') || "[]"), ...JSON.parse(localStorage.getItem('events') || "[]")];
+  const allEvents = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+                     ...JSON.parse(localStorage.getItem('events') || "[]")];
   const event = allEvents.find(e => e.id === id);
-
   if (event && event.rosterFileBase64) {
     const link = document.createElement('a');
     link.href = event.rosterFileBase64;
@@ -200,7 +201,6 @@ function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
   const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"),
                   ...JSON.parse(localStorage.getItem('events') || "[]")];
-
   events.forEach(e => {
     csv += `${e.teacher || e.instructor || "Unknown"},${e.course || e.name || "Unknown"},${e.description || ""},${e.rosterFilename || ""},${e.location || ""},${e.date || ""},${e.createdBy || "Teacher"}\n`;
   });
@@ -222,16 +222,12 @@ function filterTable() {
   });
 }
 
-function goToCreateEvent() {
-  window.location.href = "create-event.html";
-}
-
-function goBack() {
-  window.location.href = "homepage";
+function logOff() {
+  window.location.href = "index.html";
 }
 
 function editRow(id) {
-  alert("Edit functionality is not implemented.");
+  alert("Edit event not implemented yet.");
 }
 
 window.onload = loadEvents;
