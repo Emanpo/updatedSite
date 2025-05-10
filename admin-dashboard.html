@@ -21,11 +21,6 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    .search-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
     .search-container input {
       padding: 8px;
       font-size: 16px;
@@ -77,15 +72,9 @@
       background-color: #28a745;
       color: white;
     }
-    #addEventBtn:hover, #downloadBtn:hover {
-      background-color: #218838;
-    }
     #logOffBtn {
       background-color: #dc3545;
       color: white;
-    }
-    #logOffBtn:hover {
-      background-color: #c82333;
     }
     .action-buttons button {
       margin: 2px;
@@ -100,7 +89,6 @@
 <div class="top-bar">
   <h1>Admin Class Table</h1>
   <div class="search-container">
-    <span class="search-icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
   </div>
 </div>
@@ -135,33 +123,73 @@ function loadEvents() {
 
   const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-
   const allEvents = [...adminEvents, ...teacherEvents];
 
   allEvents.forEach(event => {
     const tr = document.createElement("tr");
     tr.className = (event.createdBy === "Admin") ? "admin-row" : "teacher-row";
+    tr.dataset.id = event.id;
 
     const rosterCell = event.rosterFileBase64
       ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
       : `N/A`;
 
     tr.innerHTML = `
-      <td>${event.teacher || event.instructor || "Unknown"}</td>
-      <td>${event.course || event.name || "Unknown"}</td>
-      <td>${event.description || "No description"}</td>
+      <td contenteditable>${event.teacher || "Unknown"}</td>
+      <td contenteditable>${event.course || "Unknown"}</td>
+      <td contenteditable>${event.description || ""}</td>
       <td>${rosterCell}</td>
-      <td>${event.location || "Unknown"}</td>
-      <td>${event.date || "Unknown"}</td>
+      <td contenteditable>${event.location || ""}</td>
+      <td contenteditable>${event.date || ""}</td>
       <td>${event.createdBy || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
       <td class="action-buttons">
-        <button onclick="editRow('${event.id}')">Edit</button>
+        <button onclick="saveEdit(this)">Save</button>
         <button onclick="deleteEvent('${event.id}')">Delete</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+function saveEdit(button) {
+  const row = button.closest("tr");
+  const id = row.dataset.id;
+  const cells = row.querySelectorAll("td");
+
+  const updatedEvent = {
+    id,
+    teacher: cells[0].innerText.trim(),
+    course: cells[1].innerText.trim(),
+    description: cells[2].innerText.trim(),
+    location: cells[4].innerText.trim(),
+    date: cells[5].innerText.trim(),
+    createdBy: cells[6].innerText.trim()
+  };
+
+  let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+
+  let found = false;
+
+  adminEvents = adminEvents.map(e => {
+    if (e.id === id) {
+      found = true;
+      return { ...e, ...updatedEvent };
+    }
+    return e;
+  });
+
+  if (!found) {
+    teacherEvents = teacherEvents.map(e => {
+      if (e.id === id) return { ...e, ...updatedEvent };
+      return e;
+    });
+  }
+
+  localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+  localStorage.setItem('events', JSON.stringify(teacherEvents));
+  alert("Changes saved!");
 }
 
 function deleteEvent(id) {
@@ -205,7 +233,7 @@ function downloadCSV() {
     ...JSON.parse(localStorage.getItem('events') || "[]")
   ];
   events.forEach(e => {
-    csv += `"${e.teacher || e.instructor || "Unknown"}","${e.course || e.name || "Unknown"}","${e.description || ""}","${e.rosterFilename || ""}","${e.location || ""}","${e.date || ""}","${e.createdBy || "Teacher"}"\n`;
+    csv += `"${e.teacher || "Unknown"}","${e.course || "Unknown"}","${e.description || ""}","${e.rosterFilename || ""}","${e.location || ""}","${e.date || ""}","${e.createdBy || "Teacher"}"\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -227,10 +255,6 @@ function filterTable() {
 
 function logOff() {
   window.location.href = "index.html";
-}
-
-function editRow(id) {
-  alert("Edit event not implemented yet.");
 }
 
 window.onload = loadEvents;
