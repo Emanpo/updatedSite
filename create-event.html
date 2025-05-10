@@ -134,7 +134,8 @@
     const location = document.getElementById("location").value.trim();
     const date = document.getElementById("date").value.trim();
     const rosterFile = document.getElementById("roster").files[0];
-    const role = localStorage.getItem("role") || "Unknown";
+    const rawRole = localStorage.getItem("role") || "Unknown";
+    const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
 
     if (!rosterFile) {
       alert("Roster file is required.");
@@ -158,7 +159,6 @@
         createdBy: role
       };
 
-      // ✅ Save to the correct storage based on role
       if (role === "Admin") {
         const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
         adminEvents.push(newEvent);
