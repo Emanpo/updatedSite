@@ -135,16 +135,16 @@ function loadEvents() {
       : `N/A`;
 
     tr.innerHTML = `
-      <td contenteditable>${event.teacher || "Unknown"}</td>
-      <td contenteditable>${event.course || "Unknown"}</td>
-      <td contenteditable>${event.description || ""}</td>
+      <td contenteditable="false">${event.teacher || "Unknown"}</td>
+      <td contenteditable="false">${event.course || "Unknown"}</td>
+      <td contenteditable="false">${event.description || ""}</td>
       <td>${rosterCell}</td>
-      <td contenteditable>${event.location || ""}</td>
-      <td contenteditable>${event.date || ""}</td>
+      <td contenteditable="false">${event.location || ""}</td>
+      <td contenteditable="false">${event.date || ""}</td>
       <td>${event.createdBy || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
       <td class="action-buttons">
-        <button onclick="saveEdit(this)">Save</button>
+        <button onclick="toggleEdit(this)">Edit</button>
         <button onclick="deleteEvent('${event.id}')">Delete</button>
       </td>
     `;
@@ -152,44 +152,67 @@ function loadEvents() {
   });
 }
 
-function saveEdit(button) {
-  const row = button.closest("tr");
-  const id = row.dataset.id;
+function toggleEdit(btn) {
+  const row = btn.closest("tr");
+  const isEditing = btn.textContent === "Save";
   const cells = row.querySelectorAll("td");
 
-  const updatedEvent = {
-    id,
-    teacher: cells[0].innerText.trim(),
-    course: cells[1].innerText.trim(),
-    description: cells[2].innerText.trim(),
-    location: cells[4].innerText.trim(),
-    date: cells[5].innerText.trim(),
-    createdBy: cells[6].innerText.trim()
-  };
+  if (isEditing) {
+    // Save data
+    const id = row.dataset.id;
+    const updatedEvent = {
+      id,
+      teacher: cells[0].innerText.trim(),
+      course: cells[1].innerText.trim(),
+      description: cells[2].innerText.trim(),
+      location: cells[4].innerText.trim(),
+      date: cells[5].innerText.trim(),
+      createdBy: cells[6].innerText.trim()
+    };
 
-  let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
-  let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
+    let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
+    let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
 
-  let found = false;
+    let found = false;
 
-  adminEvents = adminEvents.map(e => {
-    if (e.id === id) {
-      found = true;
-      return { ...e, ...updatedEvent };
-    }
-    return e;
-  });
-
-  if (!found) {
-    teacherEvents = teacherEvents.map(e => {
-      if (e.id === id) return { ...e, ...updatedEvent };
+    adminEvents = adminEvents.map(e => {
+      if (e.id === id) {
+        found = true;
+        return { ...e, ...updatedEvent };
+      }
       return e;
     });
-  }
 
-  localStorage.setItem('adminTable', JSON.stringify(adminEvents));
-  localStorage.setItem('events', JSON.stringify(teacherEvents));
-  alert("Changes saved!");
+    if (!found) {
+      teacherEvents = teacherEvents.map(e => {
+        if (e.id === id) return { ...e, ...updatedEvent };
+        return e;
+      });
+    }
+
+    localStorage.setItem('adminTable', JSON.stringify(adminEvents));
+    localStorage.setItem('events', JSON.stringify(teacherEvents));
+    alert("Changes saved!");
+
+    // Disable editing
+    for (const [index, cell] of cells.entries()) {
+      if ([0, 1, 2, 4, 5].includes(index)) {
+        cell.contentEditable = "false";
+        cell.style.backgroundColor = "";
+      }
+    }
+
+    btn.textContent = "Edit";
+  } else {
+    // Enable editing
+    for (const [index, cell] of cells.entries()) {
+      if ([0, 1, 2, 4, 5].includes(index)) {
+        cell.contentEditable = "true";
+        cell.style.backgroundColor = "#ffffcc";
+      }
+    }
+    btn.textContent = "Save";
+  }
 }
 
 function deleteEvent(id) {
