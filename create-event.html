@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Create New Class</title>
+  <title>Create Class Template</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -77,8 +77,8 @@
 <body>
 
 <div class="event-form-container">
-  <div class="form-title">Create Class Form</div>
-  <form id="createEventForm">
+  <div class="form-title">Create Class Template</div>
+  <form id="createTemplateForm">
     <div class="form-group">
       <label for="teacher">Teacher</label>
       <input type="text" id="teacher" name="teacher" required />
@@ -108,7 +108,7 @@
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="submit-btn">Submit</button>
+      <button type="submit" class="submit-btn">Save Template</button>
       <button type="reset" class="clear-btn">Clear</button>
       <button type="button" class="go-back-btn" onclick="goBack()">Go Back</button>
     </div>
@@ -117,15 +117,10 @@
 
 <script>
   function goBack() {
-    const role = localStorage.getItem("role") || "";
-    if (role === "Admin") {
-      window.location.href = "admin-dashboard.html";
-    } else {
-      window.location.href = "teacher-dashboard.html";
-    }
+    window.location.href = "teacher-dashboard.html";
   }
 
-  document.getElementById("createEventForm").addEventListener("submit", function (e) {
+  document.getElementById("createTemplateForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const teacher = document.getElementById("teacher").value.trim();
@@ -134,8 +129,6 @@
     const location = document.getElementById("location").value.trim();
     const date = document.getElementById("date").value.trim();
     const rosterFile = document.getElementById("roster").files[0];
-    const rawRole = localStorage.getItem("role") || "Unknown";
-    const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
 
     if (!rosterFile) {
       alert("Roster file is required.");
@@ -146,8 +139,8 @@
     reader.onload = function (event) {
       const rosterBase64 = event.target.result;
 
-      const newEvent = {
-        id: 'class-' + Math.random().toString(36).substr(2, 9),
+      const newTemplate = {
+        id: 'template-' + Math.random().toString(36).substr(2, 9),
         teacher,
         course,
         description,
@@ -155,32 +148,15 @@
         date,
         rosterFilename: rosterFile.name,
         rosterFileBase64: rosterBase64,
-        recurringDays: [],
-        createdBy: role
+        createdBy: "Teacher"
       };
 
-      if (role === "Admin") {
-        const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
-        adminEvents.push(newEvent);
-        localStorage.setItem("adminTable", JSON.stringify(adminEvents));
-      } else if (role === "Teacher") {
-        const teacherEvents = JSON.parse(localStorage.getItem("events") || "[]");
-        teacherEvents.push(newEvent);
-        localStorage.setItem("events", JSON.stringify(teacherEvents));
-      }
+      const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
+      templates.push(newTemplate);
+      localStorage.setItem("classTemplates", JSON.stringify(templates));
 
-      alert("Class created successfully!");
-
-      const params = new URLSearchParams({
-        id: newEvent.id,
-        course: newEvent.course,
-        teacher: newEvent.teacher,
-        location: newEvent.location,
-        date: newEvent.date,
-        createdBy: newEvent.createdBy
-      });
-
-      window.location.href = "QR-display.html?" + params.toString();
+      alert("Template saved successfully!");
+      window.location.href = "teacher-dashboard.html";
     };
 
     reader.readAsDataURL(rosterFile);
