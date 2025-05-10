@@ -52,24 +52,40 @@ function submitCheckIn() {
     return;
   }
 
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
-  // Need to change localStore with our database
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
+  // Update the 'reports' (map of classId to student eNumbers)
   let reports = JSON.parse(localStorage.getItem('reports') || '{}');
-
   if (!reports[classId]) {
     reports[classId] = [];
   }
-
   if (!reports[classId].includes(eNumber)) {
     reports[classId].push(eNumber);
   }
-
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
   localStorage.setItem('reports', JSON.stringify(reports));
-  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // After saving, redirect to confirmation
+  // Record the class info in studentCheckins
+  const allEvents = [
+    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
+    ...JSON.parse(localStorage.getItem('events') || "[]")
+  ];
+  const event = allEvents.find(e => e.id === classId);
+  if (event) {
+    const checkins = JSON.parse(localStorage.getItem('studentCheckins') || "[]");
+
+    const alreadyCheckedIn = checkins.some(entry => entry.classId === classId && entry.student === eNumber);
+    if (!alreadyCheckedIn) {
+      checkins.push({
+        student: eNumber,
+        classId: classId,
+        course: event.course,
+        teacher: event.teacher,
+        description: event.description,
+        location: event.location,
+        date: event.date
+      });
+      localStorage.setItem('studentCheckins', JSON.stringify(checkins));
+    }
+  }
+
   window.location.href = `confirmation?classId=${classId}`;
 }
 </script>
