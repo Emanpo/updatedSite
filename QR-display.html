@@ -75,7 +75,7 @@
     </div>
 
     <button id="downloadBtn" class="btn">Download QR Code</button>
-    <button class="btn" onclick="goToLibrary()">Go to Event Library</button>
+    <button class="btn" onclick="continueToDashboard()">Continue</button>
   </div>
 
   <script>
@@ -92,7 +92,6 @@
       qrImage.src = qrUrl;
       qrLink.href = checkInUrl;
 
-      // Load full event data from localStorage using ID
       const allEvents = [
         ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
         ...JSON.parse(localStorage.getItem("events") || "[]")
@@ -105,12 +104,6 @@
         document.getElementById('date').textContent = event.date || 'N/A';
         document.getElementById('teacher').textContent = event.teacher || 'N/A';
         document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
-      } else {
-        document.getElementById('course').textContent = 'N/A';
-        document.getElementById('location').textContent = 'N/A';
-        document.getElementById('date').textContent = 'N/A';
-        document.getElementById('teacher').textContent = 'N/A';
-        document.getElementById('createdBy').textContent = 'N/A';
       }
 
       qrImage.onerror = () => {
@@ -128,8 +121,16 @@
       });
     });
 
-    function goToLibrary() {
-      window.location.href = 'library';
+    function continueToDashboard() {
+      const role = localStorage.getItem("role");
+      if (role === "admin") {
+        window.location.href = "admin-dashboard.html";
+      } else if (role === "teacher") {
+        window.location.href = "library.html";
+      } else {
+        alert("Unknown role. Returning to home.");
+        window.location.href = "index.html";
+      }
     }
   </script>
 </body>
