@@ -6,16 +6,54 @@
   <style>
     body { font-family: Arial, sans-serif; background-color: #002D74; padding: 40px; }
     h1 { text-align: center; margin-bottom: 20px; color: white; }
-    .event-form-container { background-color: #fff; padding: 30px; max-width: 600px; margin: 0 auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-    .form-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+    .event-form-container {
+      background-color: #fff;
+      padding: 30px;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: bold; margin-bottom: 8px; }
-    input[type="text"], input[type="date"], select, input[type="file"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-    .form-actions { display: flex; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; gap: 10px; }
-    button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; }
-    .submit-btn, .clear-btn { background-color: #007bff; color: #fff; }
-    .go-back-btn { background-color: #dc3545; color: white; }
-    .go-back-btn:hover { background-color: #c82333; }
+    input[type="text"], input[type="date"], select, input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .submit-btn, .clear-btn {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .go-back-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    .go-back-btn:hover {
+      background-color: #c82333;
+    }
   </style>
 </head>
 <body>
@@ -60,66 +98,71 @@
 </div>
 
 <script>
-function goBack() {
-  window.location.href = "admin-dashboard"; // Adjust if your route differs
-}
-
-document.getElementById("createEventForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const teacher = document.getElementById("teacher").value.trim();
-  const course = document.getElementById("course").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const date = document.getElementById("date").value.trim();
-  const rosterFile = document.getElementById("roster").files[0];
-
-  if (!rosterFile) {
-    alert("Roster file is required.");
-    return;
+  function goBack() {
+    const role = localStorage.getItem("loggedInRole") || "";
+    if (role === "Admin") {
+      window.location.href = "admin-dashboard";
+    } else {
+      window.location.href = "teacher-dashboard";
+    }
   }
 
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const rosterBase64 = event.target.result;
+  document.getElementById("createEventForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-    const newEvent = {
-      id: 'class-' + Math.random().toString(36).substr(2, 9),
-      teacher,
-      course,
-      description,
-      location,
-      date,
-      rosterFilename: rosterFile.name,
-      rosterFileBase64: rosterBase64,
-      recurringDays: [],
-      createdBy: "Admin"
+    const teacher = document.getElementById("teacher").value.trim();
+    const course = document.getElementById("course").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const date = document.getElementById("date").value.trim();
+    const rosterFile = document.getElementById("roster").files[0];
+
+    if (!rosterFile) {
+      alert("Roster file is required.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const rosterBase64 = event.target.result;
+
+      const newEvent = {
+        id: 'class-' + Math.random().toString(36).substr(2, 9),
+        teacher,
+        course,
+        description,
+        location,
+        date,
+        rosterFilename: rosterFile.name,
+        rosterFileBase64: rosterBase64,
+        recurringDays: [],
+        createdBy: localStorage.getItem("loggedInRole") || "Unknown"
+      };
+
+      const events = JSON.parse(localStorage.getItem("events") || "[]");
+      events.push(newEvent);
+      localStorage.setItem("events", JSON.stringify(events));
+
+      const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
+      adminEvents.push(newEvent);
+      localStorage.setItem("adminTable", JSON.stringify(adminEvents));
+
+      alert("Class created successfully!");
+
+      const params = new URLSearchParams({
+        id: newEvent.id,
+        course: newEvent.course,
+        teacher: newEvent.teacher,
+        location: newEvent.location,
+        date: newEvent.date,
+        createdBy: newEvent.createdBy
+      });
+
+      window.location.href = "QR-display?" + params.toString();
     };
 
-    const events = JSON.parse(localStorage.getItem("events") || "[]");
-    events.push(newEvent);
-    localStorage.setItem("events", JSON.stringify(events));
-
-    const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
-    adminEvents.push(newEvent);
-    localStorage.setItem("adminTable", JSON.stringify(adminEvents));
-
-    alert("Class created successfully!");
-
-    const params = new URLSearchParams({
-      id: newEvent.id,
-      course: newEvent.course,
-      teacher: newEvent.teacher,
-      location: newEvent.location,
-      date: newEvent.date,
-      createdBy: newEvent.createdBy // ✅ Now included
-    });
-
-    window.location.href = "QR-display?" + params.toString();
-  };
-
-  reader.readAsDataURL(rosterFile);
-});
+    reader.readAsDataURL(rosterFile);
+  });
 </script>
 
 </body>
