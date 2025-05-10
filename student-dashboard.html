@@ -113,9 +113,20 @@
     window.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = "";
 
+      const currentUser = localStorage.getItem("loggedInUser");
       const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
 
-      checkins.forEach(event => {
+      // Filter check-ins for the logged-in student only
+      const filtered = checkins.filter(ci => ci.student === currentUser);
+
+      if (filtered.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="5" style="text-align:center;">No check-ins found.</td>`;
+        tbody.appendChild(row);
+        return;
+      }
+
+      filtered.forEach(event => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${event.course || ""}</td>
