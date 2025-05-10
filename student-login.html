@@ -67,10 +67,8 @@
         return;
       }
 
-      // Optional: You can add logic here to validate student credentials
-
       localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("role", "student");
+      localStorage.setItem("role", "student"); // ✅ lowercase to match QR-display and other pages
 
       window.location.href = "student-dashboard.html";
     }

@@ -67,10 +67,8 @@
         return;
       }
 
-      // Optional: Add credential check here
-
       localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("role", "Admin"); // ✅ Capitalized to match event logic
+      localStorage.setItem("role", "admin"); // consistent lowercase
 
       window.location.href = "admin-dashboard.html";
     }

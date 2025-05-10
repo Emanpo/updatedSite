@@ -67,14 +67,8 @@
         return;
       }
 
-      // Optional demo check
-      // if (username !== "teacher" || password !== "1234") {
-      //   alert("Invalid credentials");
-      //   return;
-      // }
-
       localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("role", "Teacher"); // Capitalized to match event creator logic
+      localStorage.setItem("role", "teacher"); // consistent lowercase
 
       window.location.href = "teacher-dashboard.html";
     }
