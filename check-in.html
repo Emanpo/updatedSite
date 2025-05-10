@@ -31,7 +31,9 @@
       color: white;
       cursor: pointer;
     }
-    button:hover { background-color: #218838; }
+    button:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
@@ -52,7 +54,7 @@ function submitCheckIn() {
     return;
   }
 
-  // Update the 'reports' (map of classId to student eNumbers)
+  // Save to reports (list of eNumbers per classId)
   let reports = JSON.parse(localStorage.getItem('reports') || '{}');
   if (!reports[classId]) {
     reports[classId] = [];
@@ -62,31 +64,40 @@ function submitCheckIn() {
   }
   localStorage.setItem('reports', JSON.stringify(reports));
 
-  // Record the class info in studentCheckins
+  // Fetch the event details by classId
   const allEvents = [
-    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
-    ...JSON.parse(localStorage.getItem('events') || "[]")
+    ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+    ...JSON.parse(localStorage.getItem("events") || "[]")
   ];
   const event = allEvents.find(e => e.id === classId);
-  if (event) {
-    const checkins = JSON.parse(localStorage.getItem('studentCheckins') || "[]");
 
-    const alreadyCheckedIn = checkins.some(entry => entry.classId === classId && entry.student === eNumber);
+  // Save to studentCheckins (to appear in student-dashboard)
+  if (event) {
+    const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+
+    // Prevent duplicate check-in by the same student for same class/date
+    const alreadyCheckedIn = checkins.some(ci =>
+      ci.student === eNumber &&
+      ci.course === event.course &&
+      ci.date === event.date
+    );
+
     if (!alreadyCheckedIn) {
       checkins.push({
         student: eNumber,
-        classId: classId,
-        course: event.course,
-        teacher: event.teacher,
-        description: event.description,
-        location: event.location,
-        date: event.date
+        course: event.course || "",
+        teacher: event.teacher || "",
+        description: event.description || "",
+        location: event.location || "",
+        date: event.date || ""
       });
-      localStorage.setItem('studentCheckins', JSON.stringify(checkins));
+
+      localStorage.setItem("studentCheckins", JSON.stringify(checkins));
     }
   }
 
-  window.location.href = `confirmation?classId=${classId}`;
+  // Redirect to confirmation page
+  window.location.href = `confirmation.html?classId=${classId}`;
 }
 </script>
 
