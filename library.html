@@ -76,15 +76,14 @@ function loadEvents() {
     const row = document.createElement("tr");
     row.dataset.id = event.id;
 
+    const rosterCell = event.rosterFileBase64
+      ? `<button onclick="downloadRoster('${event.id}')">Download</button>`
+      : "No Roster";
+
     row.innerHTML = `
       <td>${event.course || ""}</td>
       <td>${event.description || ""}</td>
-      <td>
-        <select disabled>
-          <option>${event.rosterFilename || "No Roster"}</option>
-          <option>Download roster</option>
-        </select>
-      </td>
+      <td>${rosterCell}</td>
       <td>${event.location || ""}</td>
       <td>${event.date || ""}</td>
       <td class="action-buttons">
@@ -103,7 +102,6 @@ function editRow(button) {
     cell.contentEditable = "true";
     cell.style.backgroundColor = "#ffffcc";
   });
-  row.querySelector("select").disabled = false;
   showSaveButton();
 }
 
@@ -118,6 +116,19 @@ function deleteRow(button) {
     localStorage.setItem("events", JSON.stringify(events));
 
     alert("Event deleted.");
+  }
+}
+
+function downloadRoster(id) {
+  const events = JSON.parse(localStorage.getItem("events") || "[]");
+  const event = events.find(e => e.id === id);
+  if (event && event.rosterFileBase64) {
+    const link = document.createElement("a");
+    link.href = event.rosterFileBase64;
+    link.download = event.rosterFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }
 
@@ -140,7 +151,7 @@ saveChangesBtn.addEventListener("click", function () {
       id: id,
       course: cells[0].innerText.trim(),
       description: cells[1].innerText.trim(),
-      rosterFilename: cells[2].querySelector("select").value,
+      rosterFilename: cells[2].innerText.trim(),
       location: cells[3].innerText.trim(),
       date: cells[4].innerText.trim(),
       createdBy: "Teacher"
@@ -152,7 +163,6 @@ saveChangesBtn.addEventListener("click", function () {
       cell.contentEditable = "false";
       cell.style.backgroundColor = "";
     });
-    row.querySelector("select").disabled = true;
   });
 
   localStorage.setItem("events", JSON.stringify(updatedEvents));
@@ -167,7 +177,7 @@ document.getElementById("downloadBtn").addEventListener("click", function () {
     const rowData = [
       cells[0].innerText,
       cells[1].innerText,
-      cells[2].querySelector("select").value,
+      cells[2].innerText,
       cells[3].innerText,
       cells[4].innerText
     ];
