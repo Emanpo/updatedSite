@@ -81,12 +81,7 @@
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('id') || 'unknown';
-      const course = params.get('course') || 'N/A';
-      const teacher = params.get('teacher') || 'N/A';
-      const location = params.get('location') || 'N/A';
-      const date = params.get('date') || 'N/A';
-      const createdBy = params.get('createdBy') || 'N/A';
+      const id = params.get('id');
 
       const checkInUrl = `check-in.html?classId=${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
@@ -97,11 +92,26 @@
       qrImage.src = qrUrl;
       qrLink.href = checkInUrl;
 
-      document.getElementById('course').textContent = course;
-      document.getElementById('location').textContent = location;
-      document.getElementById('date').textContent = date;
-      document.getElementById('teacher').textContent = teacher;
-      document.getElementById('createdBy').textContent = createdBy;
+      // Load full event data from localStorage using ID
+      const allEvents = [
+        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+        ...JSON.parse(localStorage.getItem("events") || "[]")
+      ];
+      const event = allEvents.find(e => e.id === id);
+
+      if (event) {
+        document.getElementById('course').textContent = event.course || 'N/A';
+        document.getElementById('location').textContent = event.location || 'N/A';
+        document.getElementById('date').textContent = event.date || 'N/A';
+        document.getElementById('teacher').textContent = event.teacher || 'N/A';
+        document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
+      } else {
+        document.getElementById('course').textContent = 'N/A';
+        document.getElementById('location').textContent = 'N/A';
+        document.getElementById('date').textContent = 'N/A';
+        document.getElementById('teacher').textContent = 'N/A';
+        document.getElementById('createdBy').textContent = 'N/A';
+      }
 
       qrImage.onerror = () => {
         qrImage.alt = 'QR Code failed to load.';
