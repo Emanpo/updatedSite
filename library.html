@@ -16,10 +16,10 @@
     tr:hover { background-color: #f1f1f1; }
     .button-group { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .button-group button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
-    #downloadBtn, #goBackBtn, #saveChangesBtn {
+    #downloadBtn, #goBackBtn {
       background-color: #28a745; color: white;
     }
-    #downloadBtn:hover, #goBackBtn:hover, #saveChangesBtn:hover {
+    #downloadBtn:hover, #goBackBtn:hover {
       background-color: #218838;
     }
     .action-buttons button {
@@ -28,7 +28,6 @@
       font-size: 14px;
       border-radius: 5px;
     }
-    #saveChangesBtn { display: none; }
   </style>
 </head>
 
@@ -57,14 +56,12 @@
 </table>
 
 <div class="button-group">
-  <button id="saveChangesBtn">Save Changes</button>
   <button id="downloadBtn">Download CSV</button>
   <button id="goBackBtn">Go Back to Dashboard</button>
 </div>
 
 <script>
 const tbody = document.querySelector("#teacherTable tbody");
-const saveChangesBtn = document.getElementById("saveChangesBtn");
 
 window.addEventListener("DOMContentLoaded", loadEvents);
 
@@ -87,7 +84,7 @@ function loadEvents() {
       <td>${event.location || ""}</td>
       <td>${event.date || ""}</td>
       <td class="action-buttons">
-        <button class="action" onclick="editRow(this)">Edit</button>
+        <button class="action" onclick="toggleEdit(this)">Edit</button>
         <button class="action" onclick="deleteRow(this)">Delete</button>
       </td>
     `;
@@ -95,14 +92,44 @@ function loadEvents() {
   });
 }
 
-function editRow(button) {
+function toggleEdit(button) {
   const row = button.closest("tr");
   const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(3))");
-  editableCells.forEach(cell => {
-    cell.contentEditable = "true";
-    cell.style.backgroundColor = "#ffffcc";
-  });
-  showSaveButton();
+
+  const isEditing = button.textContent === "Save";
+
+  if (isEditing) {
+    const id = row.dataset.id;
+    const cells = row.querySelectorAll("td");
+    const updatedEvent = {
+      id: id,
+      course: cells[0].innerText.trim(),
+      description: cells[1].innerText.trim(),
+      location: cells[3].innerText.trim(),
+      date: cells[4].innerText.trim(),
+      createdBy: "Teacher"
+    };
+
+    // Update localStorage
+    let events = JSON.parse(localStorage.getItem("events") || "[]");
+    events = events.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
+    localStorage.setItem("events", JSON.stringify(events));
+
+    editableCells.forEach(cell => {
+      cell.contentEditable = "false";
+      cell.style.backgroundColor = "";
+    });
+
+    button.textContent = "Edit";
+    alert("Changes saved!");
+  } else {
+    editableCells.forEach(cell => {
+      cell.contentEditable = "true";
+      cell.style.backgroundColor = "#ffffcc";
+    });
+
+    button.textContent = "Save";
+  }
 }
 
 function deleteRow(button) {
@@ -131,44 +158,6 @@ function downloadRoster(id) {
     document.body.removeChild(link);
   }
 }
-
-function showSaveButton() {
-  saveChangesBtn.style.display = "inline-block";
-}
-
-function hideSaveButton() {
-  saveChangesBtn.style.display = "none";
-}
-
-saveChangesBtn.addEventListener("click", function () {
-  const rows = tbody.querySelectorAll("tr");
-  const updatedEvents = [];
-
-  rows.forEach(row => {
-    const id = row.dataset.id;
-    const cells = row.querySelectorAll("td");
-    const updatedEvent = {
-      id: id,
-      course: cells[0].innerText.trim(),
-      description: cells[1].innerText.trim(),
-      rosterFilename: cells[2].innerText.trim(),
-      location: cells[3].innerText.trim(),
-      date: cells[4].innerText.trim(),
-      createdBy: "Teacher"
-    };
-    updatedEvents.push(updatedEvent);
-
-    const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(3))");
-    editableCells.forEach(cell => {
-      cell.contentEditable = "false";
-      cell.style.backgroundColor = "";
-    });
-  });
-
-  localStorage.setItem("events", JSON.stringify(updatedEvents));
-  alert("Changes saved!");
-  hideSaveButton();
-});
 
 document.getElementById("downloadBtn").addEventListener("click", function () {
   let csv = "Course,Description,Roster,Location,Date\n";
