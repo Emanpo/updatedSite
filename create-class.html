@@ -70,6 +70,13 @@
     .go-back-btn:hover {
       background-color: #c82333;
     }
+    .manage-btn {
+      background-color: #28a745;
+      color: white;
+    }
+    .manage-btn:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
@@ -98,6 +105,7 @@
       <button type="submit" class="submit-btn">Save Template</button>
       <button type="reset" class="clear-btn">Clear</button>
       <button type="button" class="go-back-btn" onclick="goBack()">Go Back</button>
+      <button type="button" class="manage-btn" onclick="goToManage()">Manage Templates</button>
     </div>
   </form>
 </div>
@@ -105,6 +113,10 @@
 <script>
   function goBack() {
     window.location.href = "teacher-dashboard.html";
+  }
+
+  function goToManage() {
+    window.location.href = "manage-templates.html";
   }
 
   document.getElementById("createTemplateForm").addEventListener("submit", function (e) {
