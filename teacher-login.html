@@ -13,6 +13,7 @@
       height: 100vh;
       margin: 0;
     }
+
     .login-container {
       background-color: white;
       padding: 30px 40px;
@@ -20,10 +21,12 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       width: 300px;
     }
+
     .login-container h2 {
       text-align: center;
       margin-bottom: 20px;
     }
+
     .login-container input[type="text"],
     .login-container input[type="password"] {
       width: 100%;
@@ -34,6 +37,7 @@
       font-size: 16px;
       box-sizing: border-box;
     }
+
     .login-container button {
       width: 100%;
       padding: 12px;
@@ -44,16 +48,23 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     .login-container button:hover {
       background-color: #0056b3;
     }
   </style>
 </head>
 <body>
+
+  <!--Login form layout-->
   <div class="login-container">
     <h2>Teacher Login</h2>
+
+    <!--Username and Password fields-->
     <input type="text" placeholder="Username" id="username" />
     <input type="password" placeholder="Password" id="password" />
+
+    <!--Login button-->
     <button onclick="login()">Login</button>
   </div>
 
@@ -67,11 +78,14 @@
         return;
       }
 
+      // Replace localStorage
       localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("role", "teacher"); // consistent lowercase
+      localStorage.setItem("role", "teacher");
 
+      // Redirect to teacher dashboard
       window.location.href = "teacher-dashboard.html";
     }
   </script>
+
 </body>
 </html>
