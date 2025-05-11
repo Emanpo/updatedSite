@@ -4,16 +4,19 @@
   <meta charset="UTF-8">
   <title>Reports</title>
   <style>
+    /*page styling*/
     body {
       background-color: #003366;
       color: white;
       font-family: Arial, sans-serif;
       padding: 20px;
     }
+
     h1 {
       text-align: center;
       margin-bottom: 20px;
     }
+
     table {
       width: 100%;
       background: white;
@@ -21,20 +24,25 @@
       border-collapse: collapse;
       margin-top: 20px;
     }
+
     table, th, td {
       border: 1px solid #ddd;
     }
+
     th, td {
       padding: 12px;
       text-align: center;
     }
+
     th {
       background-color: #004080;
       color: white;
     }
+
     tr:hover {
       background-color: #f1f1f1;
     }
+
     button {
       margin-top: 20px;
       padding: 10px 20px;
@@ -45,6 +53,7 @@
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #218838;
     }
@@ -54,6 +63,7 @@
 
 <h1>Student Check-In Report</h1>
 
+<!--Report Table-->
 <table id="reportTable">
   <thead>
     <tr>
@@ -65,6 +75,7 @@
   <tbody></tbody>
 </table>
 
+<!--Go back button-->
 <button onclick="goBack()">Back to Admin Dashboard</button>
 
 <script>
@@ -72,9 +83,11 @@ function loadReports() {
   const params = new URLSearchParams(window.location.search);
   const classId = params.get('classId');
 
+  // Replace localStorage
   const reports = JSON.parse(localStorage.getItem('reports') || '{}');
   const students = reports[classId] || [];
 
+  // Replace localStorage
   const allEvents = [
     ...JSON.parse(localStorage.getItem('adminTable') || '[]'),
     ...JSON.parse(localStorage.getItem('events') || '[]')
@@ -82,6 +95,7 @@ function loadReports() {
   const classEvent = allEvents.find(e => e.id === classId);
   const className = classEvent ? (classEvent.course || classEvent.name || 'Unknown') : 'Unknown';
 
+  // Populate table
   const tbody = document.querySelector("#reportTable tbody");
   tbody.innerHTML = "";
 
