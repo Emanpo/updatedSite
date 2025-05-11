@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -57,11 +57,18 @@
   </style>
 </head>
 <body>
+
   <div class="login-container">
     <h2>Student Login</h2>
+
+    <!--Login form inputs-->
     <input type="text" placeholder="Username" id="username" />
     <input type="password" placeholder="Password" id="password" />
+
+    <!--login button-->
     <button onclick="login()">Login</button>
+
+    <!--Link to registration-->
     <button class="secondary-btn" onclick="goToRegister()">Create New User Account</button>
   </div>
 
@@ -75,15 +82,19 @@
         return;
       }
 
+      // Replace localStorage
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "Student");
 
+      // redirect to student dashboard
       window.location.href = "student-dashboard.html";
     }
 
     function goToRegister() {
+      // Redirect to student account creation form
       window.location.href = "new-student-user.html";
     }
   </script>
+
 </body>
 </html>
