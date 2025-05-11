@@ -99,9 +99,7 @@
         <th>Date</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Dynamic rows will be loaded here -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
   <button id="logoutBtn">Log Out</button>
@@ -113,18 +111,24 @@
     window.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = "";
 
-      const currentUser = localStorage.getItem("loggedInUser");
+      // currently logged-in student
+      const currentUser = localStorage.getItem("loggedInUser"); // Replaec localStorage
+
+      // Replaec localStorage
       const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
 
+      // Replaec localStorage
       const activeEvents = [
         ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
         ...JSON.parse(localStorage.getItem("events") || "[]")
       ];
 
+      // deleted classes don’t appear on the dashboard
       const validSignatures = new Set(
         activeEvents.map(ev => `${ev.course}__${ev.date}`)
       );
 
+      // Filter by logged-in user and active events
       const filtered = checkins.filter(ci => {
         const sig = `${ci.course}__${ci.date}`;
         return ci.student === currentUser && validSignatures.has(sig);
@@ -137,6 +141,7 @@
         return;
       }
 
+      // Display valid check-ins
       filtered.forEach(event => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -150,6 +155,7 @@
       });
     });
 
+    // filtering
     document.getElementById("searchInput").addEventListener("keyup", function () {
       const filter = this.value.toLowerCase();
       const rows = tbody.getElementsByTagName("tr");
@@ -167,6 +173,7 @@
       }
     });
 
+    // Logout and redirect
     document.getElementById("logoutBtn").addEventListener("click", function () {
       localStorage.removeItem("loggedInUser");
       localStorage.removeItem("role");
