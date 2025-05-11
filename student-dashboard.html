@@ -116,8 +116,19 @@
       const currentUser = localStorage.getItem("loggedInUser");
       const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
 
-      // Filter check-ins for the logged-in student only
-      const filtered = checkins.filter(ci => ci.student === currentUser);
+      const activeEvents = [
+        ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+        ...JSON.parse(localStorage.getItem("events") || "[]")
+      ];
+
+      const validSignatures = new Set(
+        activeEvents.map(ev => `${ev.course}__${ev.date}`)
+      );
+
+      const filtered = checkins.filter(ci => {
+        const sig = `${ci.course}__${ci.date}`;
+        return ci.student === currentUser && validSignatures.has(sig);
+      });
 
       if (filtered.length === 0) {
         const row = document.createElement("tr");
