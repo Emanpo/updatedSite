@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Check In</title>
   <style>
+    /*Page Styling*/
     body {
       background-color: #003366;
       color: white;
@@ -13,7 +14,11 @@
       align-items: center;
       padding: 50px;
     }
-    h1 { margin-bottom: 20px; }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
     input[type="text"] {
       padding: 10px;
       font-size: 18px;
@@ -22,6 +27,7 @@
       border-radius: 5px;
       border: none;
     }
+
     button {
       padding: 10px 20px;
       font-size: 18px;
@@ -31,6 +37,7 @@
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #218838;
     }
@@ -38,12 +45,14 @@
 </head>
 <body>
 
+<!--Check-in Form-->
 <h1>Student Check-In</h1>
 <input type="text" id="eNumberInput" placeholder="Enter your eNumber">
 <br>
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
+/*generate current timestamp*/
 function formatTimestamp() {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -55,17 +64,19 @@ function formatTimestamp() {
   return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
 }
 
+/*function that handles the check-in logic*/
 function submitCheckIn() {
-  const eNumber = document.getElementById('eNumberInput').value.trim();
-  const params = new URLSearchParams(window.location.search);
-  const classId = params.get('classId');
+  const eNumber = document.getElementById('eNumberInput').value.trim(); // student's input
+  const params = new URLSearchParams(window.location.search);           // get query params
+  const classId = params.get('classId');                                 // class ID from URL
 
   if (!eNumber || !classId) {
     alert("Missing eNumber or class information.");
     return;
   }
 
-  // Get all events
+  //events to identify the event by classId
+  // Replace localStorage
   const allEvents = [
     ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
     ...JSON.parse(localStorage.getItem("events") || "[]")
@@ -77,28 +88,34 @@ function submitCheckIn() {
     return;
   }
 
+  // capture the current time
   const timestamp = formatTimestamp();
 
-  // Store in reports (per classId)
+  // Save check-in to reports for this class
+  // Replace localStorage
   let reports = JSON.parse(localStorage.getItem('reports') || '{}');
   if (!reports[classId]) {
     reports[classId] = [];
   }
 
-  // Check if already checked in
+  // Prevent duplicate check-ins
   const alreadyInReports = reports[classId].some(entry =>
     typeof entry === 'object' && entry.eNumber === eNumber
   );
 
   if (!alreadyInReports) {
     reports[classId].push({ eNumber, time: timestamp });
-    localStorage.setItem('reports', JSON.stringify(reports));
+    localStorage.setItem('reports', JSON.stringify(reports)); // 🔁 Replace with DB write
   }
 
-  // Store in studentCheckins for dashboard
+  // Store check-in in student dashboard records
+  // Replace localStorage
   const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+
   const alreadyCheckedIn = checkins.some(ci =>
-    ci.student === eNumber && ci.course === event.course && ci.date === event.date
+    ci.student === eNumber &&
+    ci.course === event.course &&
+    ci.date === event.date
   );
 
   if (!alreadyCheckedIn) {
@@ -111,9 +128,11 @@ function submitCheckIn() {
       date: event.date || "",
       time: timestamp
     });
-    localStorage.setItem("studentCheckins", JSON.stringify(checkins));
+
+    localStorage.setItem("studentCheckins", JSON.stringify(checkins)); // 🔁 Replace with DB write
   }
 
+  // Redirect to confirmation screen
   window.location.href = `confirmation.html?classId=${classId}`;
 }
 </script>
