@@ -79,6 +79,14 @@
 <div class="event-form-container">
   <div class="form-title">Create Class Form</div>
   <form id="createEventForm">
+
+    <div class="form-group">
+      <label for="templateSelect">Use Template</label>
+      <select id="templateSelect">
+        <option value="">-- Select a Template --</option>
+      </select>
+    </div>
+
     <div class="form-group">
       <label for="teacher">Teacher</label>
       <input type="text" id="teacher" name="teacher" required />
@@ -94,6 +102,7 @@
     <div class="form-group">
       <label for="roster">Upload Roster (CSV)</label>
       <input type="file" id="roster" name="roster" accept=".csv" required />
+      <small id="rosterInfo" style="display:block; margin-top:5px; color: #333;"></small>
     </div>
     <div class="form-group">
       <label for="location">Location</label>
@@ -125,6 +134,34 @@
     }
   }
 
+  // Load templates into dropdown
+  const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
+  const templateSelect = document.getElementById("templateSelect");
+
+  templates.forEach(template => {
+    const option = document.createElement("option");
+    option.value = template.id;
+    option.textContent = `${template.course} - ${template.teacher}`;
+    templateSelect.appendChild(option);
+  });
+
+  templateSelect.addEventListener("change", function () {
+    const selectedId = this.value;
+    const selectedTemplate = templates.find(t => t.id === selectedId);
+    if (selectedTemplate) {
+      document.getElementById("teacher").value = selectedTemplate.teacher || "";
+      document.getElementById("course").value = selectedTemplate.course || "";
+      document.getElementById("description").value = selectedTemplate.description || "";
+
+      // Store base64 roster in dataset for later
+      document.getElementById("roster").dataset.base64 = selectedTemplate.rosterFileBase64 || "";
+      document.getElementById("roster").dataset.filename = selectedTemplate.rosterFilename || "";
+      document.getElementById("rosterInfo").textContent = `Using saved file: ${selectedTemplate.rosterFilename || "N/A"}`;
+    } else {
+      document.getElementById("rosterInfo").textContent = "";
+    }
+  });
+
   document.getElementById("createEventForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -133,19 +170,26 @@
     const description = document.getElementById("description").value.trim();
     const location = document.getElementById("location").value.trim();
     const date = document.getElementById("date").value.trim();
-    const rosterFile = document.getElementById("roster").files[0];
-    const rawRole = localStorage.getItem("role") || "Unknown";
-    const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+    const role = (localStorage.getItem("role") || "Unknown").replace(/^./, c => c.toUpperCase());
 
-    if (!rosterFile) {
+    const rosterInput = document.getElementById("roster");
+    const uploadedFile = rosterInput.files[0];
+    const templateBase64 = rosterInput.dataset.base64;
+    const templateFilename = rosterInput.dataset.filename;
+
+    if (uploadedFile) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        saveEvent(event.target.result, uploadedFile.name);
+      };
+      reader.readAsDataURL(uploadedFile);
+    } else if (templateBase64) {
+      saveEvent(templateBase64, templateFilename);
+    } else {
       alert("Roster file is required.");
-      return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const rosterBase64 = event.target.result;
-
+    function saveEvent(base64, filename) {
       const newEvent = {
         id: 'class-' + Math.random().toString(36).substr(2, 9),
         teacher,
@@ -153,8 +197,8 @@
         description,
         location,
         date,
-        rosterFilename: rosterFile.name,
-        rosterFileBase64: rosterBase64,
+        rosterFilename: filename,
+        rosterFileBase64: base64,
         recurringDays: [],
         createdBy: role
       };
@@ -181,9 +225,7 @@
       });
 
       window.location.href = "QR-display.html?" + params.toString();
-    };
-
-    reader.readAsDataURL(rosterFile);
+    }
   });
 </script>
 
