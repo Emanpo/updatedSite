@@ -44,6 +44,17 @@
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
+function formatTimestamp() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const min = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+}
+
 function submitCheckIn() {
   const eNumber = document.getElementById('eNumberInput').value.trim();
   const params = new URLSearchParams(window.location.search);
@@ -54,49 +65,55 @@ function submitCheckIn() {
     return;
   }
 
-  // Save to reports (list of eNumbers per classId)
-  let reports = JSON.parse(localStorage.getItem('reports') || '{}');
-  if (!reports[classId]) {
-    reports[classId] = [];
-  }
-  if (!reports[classId].includes(eNumber)) {
-    reports[classId].push(eNumber);
-  }
-  localStorage.setItem('reports', JSON.stringify(reports));
-
-  // Fetch the event details by classId
+  // Get all events
   const allEvents = [
     ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
     ...JSON.parse(localStorage.getItem("events") || "[]")
   ];
   const event = allEvents.find(e => e.id === classId);
 
-  // Save to studentCheckins (to appear in student-dashboard)
-  if (event) {
-    const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
-
-    // Prevent duplicate check-in by the same student for same class/date
-    const alreadyCheckedIn = checkins.some(ci =>
-      ci.student === eNumber &&
-      ci.course === event.course &&
-      ci.date === event.date
-    );
-
-    if (!alreadyCheckedIn) {
-      checkins.push({
-        student: eNumber,
-        course: event.course || "",
-        teacher: event.teacher || "",
-        description: event.description || "",
-        location: event.location || "",
-        date: event.date || ""
-      });
-
-      localStorage.setItem("studentCheckins", JSON.stringify(checkins));
-    }
+  if (!event) {
+    alert("Class not found.");
+    return;
   }
 
-  // Redirect to confirmation page
+  const timestamp = formatTimestamp();
+
+  // Store in reports (per classId)
+  let reports = JSON.parse(localStorage.getItem('reports') || '{}');
+  if (!reports[classId]) {
+    reports[classId] = [];
+  }
+
+  // Check if already checked in
+  const alreadyInReports = reports[classId].some(entry =>
+    typeof entry === 'object' && entry.eNumber === eNumber
+  );
+
+  if (!alreadyInReports) {
+    reports[classId].push({ eNumber, time: timestamp });
+    localStorage.setItem('reports', JSON.stringify(reports));
+  }
+
+  // Store in studentCheckins for dashboard
+  const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+  const alreadyCheckedIn = checkins.some(ci =>
+    ci.student === eNumber && ci.course === event.course && ci.date === event.date
+  );
+
+  if (!alreadyCheckedIn) {
+    checkins.push({
+      student: eNumber,
+      course: event.course || "",
+      teacher: event.teacher || "",
+      description: event.description || "",
+      location: event.location || "",
+      date: event.date || "",
+      time: timestamp
+    });
+    localStorage.setItem("studentCheckins", JSON.stringify(checkins));
+  }
+
   window.location.href = `confirmation.html?classId=${classId}`;
 }
 </script>
