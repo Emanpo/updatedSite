@@ -56,15 +56,11 @@
 </head>
 <body>
 
-  <!--Login form layout-->
+  <!-- Login form layout -->
   <div class="login-container">
     <h2>Teacher Login</h2>
-
-    <!--Username and Password fields-->
     <input type="text" placeholder="Username" id="username" />
     <input type="password" placeholder="Password" id="password" />
-
-    <!--Login button-->
     <button onclick="login()">Login</button>
   </div>
 
@@ -78,11 +74,20 @@
         return;
       }
 
-      // Replace localStorage
+      // ✅ Check if teacher account was created by admin
+      const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
+      const teacher = teachers.find(t => t.username === username && t.password === password);
+
+      if (!teacher) {
+        alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
+        return;
+      }
+
+      // ✅ Save login session info
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "teacher");
 
-      // Redirect to teacher dashboard
+      // ✅ Redirect to dashboard
       window.location.href = "teacher-dashboard.html";
     }
   </script>
