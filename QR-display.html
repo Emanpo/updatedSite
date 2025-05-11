@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Event QR Code</title>
   <style>
+    /*page styling */
     body {
       background-color: #003366;
       font-family: Arial, sans-serif;
@@ -62,10 +63,12 @@
   <div class="container">
     <h1>QR Code for Your Event</h1>
 
+    <!--QR Code links to the check-in login page-->
     <a id="qrLink" href="#" target="_blank">
       <img id="qrImage" src="" alt="Event QR Code" />
     </a>
 
+    <!--Event details-->
     <div class="event-info">
       <p><strong>Course:</strong> <span id="course"></span></p>
       <p><strong>Location:</strong> <span id="location"></span></p>
@@ -74,6 +77,7 @@
       <p><strong>Created By:</strong> <span id="createdBy"></span></p>
     </div>
 
+    <!-- Buttons for downloading and continuing -->
     <button id="downloadBtn" class="btn">Download QR Code</button>
     <button class="btn" onclick="continueToDashboard()">Continue</button>
   </div>
@@ -83,22 +87,25 @@
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
 
-      // ✅ Fixed this line by removing the extra 'CLASS_ID='
-      const checkInUrl = `student-checkin-login.html?classId=${encodeURIComponent(id)}`;
+      // URL encoded in the QR code (check-in page with classId)
+      const checkInUrl = `check-in.html?classId=${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
 
       const qrImage = document.getElementById('qrImage');
       const qrLink = document.getElementById('qrLink');
 
+      // Set QR image source and link
       qrImage.src = qrUrl;
       qrLink.href = checkInUrl;
 
+      // Replace localStorage
       const allEvents = [
         ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
         ...JSON.parse(localStorage.getItem("events") || "[]")
       ];
       const event = allEvents.find(e => e.id === id);
 
+      // Display event data
       if (event) {
         document.getElementById('course').textContent = event.course || 'N/A';
         document.getElementById('location').textContent = event.location || 'N/A';
@@ -106,18 +113,16 @@
         document.getElementById('teacher').textContent = event.teacher || 'N/A';
         document.getElementById('createdBy').textContent = event.createdBy || 'N/A';
       } else {
-        document.getElementById('course').textContent = 'N/A';
-        document.getElementById('location').textContent = 'N/A';
-        document.getElementById('date').textContent = 'N/A';
-        document.getElementById('teacher').textContent = 'N/A';
-        document.getElementById('createdBy').textContent = 'N/A';
+        document.querySelectorAll('.event-info span').forEach(span => span.textContent = 'N/A');
       }
 
+      // If QR image fails to load
       qrImage.onerror = () => {
         qrImage.alt = 'QR Code failed to load.';
         qrImage.style.border = '2px solid red';
       };
 
+      // Allow user to download the QR image
       document.getElementById("downloadBtn").addEventListener("click", function () {
         const link = document.createElement("a");
         link.href = qrImage.src;
@@ -128,6 +133,7 @@
       });
     });
 
+    // Redirect user to their dashboard based on role
     function continueToDashboard() {
       const role = (localStorage.getItem("role") || "").toLowerCase();
       if (role === "admin") {
