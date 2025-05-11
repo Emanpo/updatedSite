@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>New Student Account</title>
   <style>
+    /* Page layout styling */
     body {
       background-color: #003366;
       font-family: Arial, sans-serif;
@@ -57,8 +58,14 @@
 <body>
   <div class="form-container">
     <h2>New User Form</h2>
+
+    <!--Student eNumber input-->
     <input type="text" id="eNumber" placeholder="eNumber" />
+
+    <!--Student password input-->
     <input type="password" id="password" placeholder="Password" />
+
+    <!--Submit button-->
     <button onclick="register()">Create Account</button>
   </div>
 
@@ -67,17 +74,28 @@
       const eNumber = document.getElementById("eNumber").value.trim();
       const password = document.getElementById("password").value.trim();
 
+      // Basic validation
       if (!eNumber || !password) {
         alert("Please fill in both fields.");
         return;
       }
 
-      // Save user to localStorage
+      // Replace localStorage
       const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
+
+      // Check for duplicates
+      if (users.some(user => user.eNumber === eNumber)) {
+        alert("An account with this eNumber already exists.");
+        return;
+      }
+
+      // Add new student account
       users.push({ eNumber, password });
       localStorage.setItem("studentUsers", JSON.stringify(users));
 
       alert("Account created successfully!");
+
+      // Redirect to login page
       window.location.href = "student-login.html";
     }
   </script>
