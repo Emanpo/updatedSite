@@ -44,16 +44,14 @@
     th {
       background-color: #004080;
       color: white;
+      cursor: pointer;
+      text-decoration: underline;
     }
     tr:hover {
       background-color: #f1f1f1;
     }
-    .admin-row {
-      background-color: #e6f7ff;
-    }
-    .teacher-row {
-      background-color: #fff0e6;
-    }
+    .admin-row { background-color: #e6f7ff; }
+    .teacher-row { background-color: #fff0e6; }
     .button-group {
       margin-top: 20px;
       display: flex;
@@ -68,14 +66,8 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    #addEventBtn, #downloadBtn {
-      background-color: #28a745;
-      color: white;
-    }
-    #logOffBtn {
-      background-color: #dc3545;
-      color: white;
-    }
+    #addEventBtn, #downloadBtn { background-color: #28a745; color: white; }
+    #logOffBtn { background-color: #dc3545; color: white; }
     .action-buttons button {
       margin: 2px;
       padding: 5px 10px;
@@ -96,12 +88,12 @@
 <table id="adminTable">
   <thead>
     <tr>
-      <th>Teacher</th>
-      <th>Course</th>
+      <th onclick="sortTableBy(0)">Teacher</th>
+      <th onclick="sortTableBy(1)">Course</th>
       <th>Description</th>
       <th>Roster</th>
       <th>Location</th>
-      <th>Date</th>
+      <th onclick="sortTableBy(5)">Date</th>
       <th>Created By</th>
       <th>Checked In</th>
       <th>Actions</th>
@@ -152,13 +144,33 @@ function loadEvents() {
   });
 }
 
+let sortDirection = {};
+function sortTableBy(columnIndex) {
+  const table = document.getElementById("adminTable");
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  const direction = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+  sortDirection[columnIndex] = direction;
+
+  rows.sort((a, b) => {
+    const textA = a.cells[columnIndex].innerText.trim().toLowerCase();
+    const textB = b.cells[columnIndex].innerText.trim().toLowerCase();
+    if (!isNaN(Date.parse(textA)) && !isNaN(Date.parse(textB))) {
+      return direction === 'asc' ? new Date(textA) - new Date(textB) : new Date(textB) - new Date(textA);
+    }
+    return direction === 'asc' ? textA.localeCompare(textB) : textB.localeCompare(textA);
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+
 function toggleEdit(btn) {
   const row = btn.closest("tr");
   const isEditing = btn.textContent === "Save";
   const cells = row.querySelectorAll("td");
 
   if (isEditing) {
-    // Save data
     const id = row.dataset.id;
     const updatedEvent = {
       id,
@@ -174,43 +186,27 @@ function toggleEdit(btn) {
     let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
 
     let found = false;
-
-    adminEvents = adminEvents.map(e => {
-      if (e.id === id) {
-        found = true;
-        return { ...e, ...updatedEvent };
-      }
-      return e;
-    });
-
+    adminEvents = adminEvents.map(e => (e.id === id ? (found = true, { ...e, ...updatedEvent }) : e));
     if (!found) {
-      teacherEvents = teacherEvents.map(e => {
-        if (e.id === id) return { ...e, ...updatedEvent };
-        return e;
-      });
+      teacherEvents = teacherEvents.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
     }
 
     localStorage.setItem('adminTable', JSON.stringify(adminEvents));
     localStorage.setItem('events', JSON.stringify(teacherEvents));
     alert("Changes saved!");
 
-    // Disable editing
-    for (const [index, cell] of cells.entries()) {
-      if ([0, 1, 2, 4, 5].includes(index)) {
-        cell.contentEditable = "false";
-        cell.style.backgroundColor = "";
-      }
-    }
+    [0, 1, 2, 4, 5].forEach(i => {
+      cells[i].contentEditable = "false";
+      cells[i].style.backgroundColor = "";
+    });
 
     btn.textContent = "Edit";
   } else {
-    // Enable editing
-    for (const [index, cell] of cells.entries()) {
-      if ([0, 1, 2, 4, 5].includes(index)) {
-        cell.contentEditable = "true";
-        cell.style.backgroundColor = "#ffffcc";
-      }
-    }
+    [0, 1, 2, 4, 5].forEach(i => {
+      cells[i].contentEditable = "true";
+      cells[i].style.backgroundColor = "#ffffcc";
+    });
+
     btn.textContent = "Save";
   }
 }
@@ -236,10 +232,7 @@ function viewCheckIns(id) {
 }
 
 function downloadRoster(id) {
-  const allEvents = [
-    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
-    ...JSON.parse(localStorage.getItem('events') || "[]")
-  ];
+  const allEvents = [...JSON.parse(localStorage.getItem('adminTable') || "[]"), ...JSON.parse(localStorage.getItem('events') || "[]")];
   const event = allEvents.find(e => e.id === id);
   if (event && event.rosterFileBase64) {
     const link = document.createElement('a');
@@ -251,10 +244,7 @@ function downloadRoster(id) {
 
 function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
-  const events = [
-    ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
-    ...JSON.parse(localStorage.getItem('events') || "[]")
-  ];
+  const events = [...JSON.parse(localStorage.getItem('adminTable') || "[]"), ...JSON.parse(localStorage.getItem('events') || "[]")];
   events.forEach(e => {
     csv += `"${e.teacher || "Unknown"}","${e.course || "Unknown"}","${e.description || ""}","${e.rosterFilename || ""}","${e.location || ""}","${e.date || ""}","${e.createdBy || "Teacher"}"\n`;
   });
