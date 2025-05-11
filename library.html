@@ -16,12 +16,8 @@
     tr:hover { background-color: #f1f1f1; }
     .button-group { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .button-group button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
-    #downloadBtn, #goBackBtn {
-      background-color: #28a745; color: white;
-    }
-    #downloadBtn:hover, #goBackBtn:hover {
-      background-color: #218838;
-    }
+    #downloadBtn, #goBackBtn { background-color: #28a745; color: white; }
+    #downloadBtn:hover, #goBackBtn:hover { background-color: #218838; }
     .action-buttons button {
       margin: 2px;
       padding: 5px 10px;
@@ -49,6 +45,7 @@
       <th>Roster</th>
       <th>Location</th>
       <th>Date</th>
+      <th>Checked In</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -83,6 +80,7 @@ function loadEvents() {
       <td>${rosterCell}</td>
       <td>${event.location || ""}</td>
       <td>${event.date || ""}</td>
+      <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
       <td class="action-buttons">
         <button class="action" onclick="toggleEdit(this)">Edit</button>
         <button class="action" onclick="deleteRow(this)">Delete</button>
@@ -94,7 +92,7 @@ function loadEvents() {
 
 function toggleEdit(button) {
   const row = button.closest("tr");
-  const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-child(3))");
+  const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-last-child(2)):not(:nth-child(3))");
 
   const isEditing = button.textContent === "Save";
 
@@ -110,7 +108,6 @@ function toggleEdit(button) {
       createdBy: "Teacher"
     };
 
-    // Update localStorage
     let events = JSON.parse(localStorage.getItem("events") || "[]");
     events = events.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
     localStorage.setItem("events", JSON.stringify(events));
@@ -144,6 +141,10 @@ function deleteRow(button) {
 
     alert("Event deleted.");
   }
+}
+
+function viewCheckIns(id) {
+  window.location.href = `reports.html?classId=${id}`;
 }
 
 function downloadRoster(id) {
