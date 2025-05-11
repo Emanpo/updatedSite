@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Check In</title>
   <style>
-    /*Page Styling*/
     body {
       background-color: #003366;
       color: white;
@@ -14,11 +13,7 @@
       align-items: center;
       padding: 50px;
     }
-
-    h1 {
-      margin-bottom: 20px;
-    }
-
+    h1 { margin-bottom: 20px; }
     input[type="text"] {
       padding: 10px;
       font-size: 18px;
@@ -27,7 +22,6 @@
       border-radius: 5px;
       border: none;
     }
-
     button {
       padding: 10px 20px;
       font-size: 18px;
@@ -37,7 +31,6 @@
       color: white;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #218838;
     }
@@ -45,96 +38,79 @@
 </head>
 <body>
 
-<!--Check-in Form-->
 <h1>Student Check-In</h1>
 <input type="text" id="eNumberInput" placeholder="Enter your eNumber">
 <br>
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
-/*generate current timestamp*/
-function formatTimestamp() {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const hh = String(now.getHours()).padStart(2, '0');
-  const min = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
-}
+  // ✅ Validate login first
+  window.addEventListener("DOMContentLoaded", () => {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    const role = (localStorage.getItem("role") || "").toLowerCase();
 
-/*function that handles the check-in logic*/
-function submitCheckIn() {
-  const eNumber = document.getElementById('eNumberInput').value.trim(); // student's input
-  const params = new URLSearchParams(window.location.search);           // get query params
-  const classId = params.get('classId');                                 // class ID from URL
+    if (!loggedInUser || role !== "student") {
+      // Redirect back to login with original classId
+      const params = new URLSearchParams(window.location.search);
+      const classId = params.get("classId") || "";
+      window.location.href = `student-checkin-login.html?classId=${encodeURIComponent(classId)}`;
+    }
+  });
 
-  if (!eNumber || !classId) {
-    alert("Missing eNumber or class information.");
-    return;
+  function formatTimestamp() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
   }
 
-  //events to identify the event by classId
-  // Replace localStorage
-  const allEvents = [
-    ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
-    ...JSON.parse(localStorage.getItem("events") || "[]")
-  ];
-  const event = allEvents.find(e => e.id === classId);
+  function submitCheckIn() {
+    const eNumber = document.getElementById('eNumberInput').value.trim();
+    const params = new URLSearchParams(window.location.search);
+    const classId = params.get('classId');
 
-  if (!event) {
-    alert("Class not found.");
-    return;
+    if (!eNumber || !classId) {
+      alert("Missing eNumber or class information.");
+      return;
+    }
+
+    const allEvents = [
+      ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
+      ...JSON.parse(localStorage.getItem("events") || "[]")
+    ];
+    const event = allEvents.find(e => e.id === classId);
+
+    if (!event) {
+      alert("Class not found.");
+      return;
+    }
+
+    const timestamp = formatTimestamp();
+
+    // Save to reports (per class)
+    let reports = JSON.parse(localStorage.getItem('reports') || '{}');
+    if (!reports[classId]) reports[classId] = [];
+
+    if (!reports[classId].some(entry => entry.eNumber === eNumber)) {
+      reports[classId].push({ eNumber, time: timestamp });
+      localStorage.setItem('reports', JSON.stringify(reports));
+    }
+
+    // Save to studentCheckins
+    const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
+    if (!checkins.some(ci => ci.student === eNumber && ci.course === event.course && ci.date === event.date)) {
+      checkins.push({
+        student: eNumber,
+        course: event.course || "",
+        teacher: event.teacher || "",
+        description: event.description || "",
+        location: event.location || "",
+        date: event.date || "",
+        time: timestamp
+      });
+      localStorage.setItem("studentCheckins", JSON.stringify(checkins));
+    }
+
+    window.location.href = `confirmation.html?classId=${classId}`;
   }
-
-  // capture the current time
-  const timestamp = formatTimestamp();
-
-  // Save check-in to reports for this class
-  // Replace localStorage
-  let reports = JSON.parse(localStorage.getItem('reports') || '{}');
-  if (!reports[classId]) {
-    reports[classId] = [];
-  }
-
-  // Prevent duplicate check-ins
-  const alreadyInReports = reports[classId].some(entry =>
-    typeof entry === 'object' && entry.eNumber === eNumber
-  );
-
-  if (!alreadyInReports) {
-    reports[classId].push({ eNumber, time: timestamp });
-    localStorage.setItem('reports', JSON.stringify(reports)); // 🔁 Replace with DB write
-  }
-
-  // Store check-in in student dashboard records
-  // Replace localStorage
-  const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
-
-  const alreadyCheckedIn = checkins.some(ci =>
-    ci.student === eNumber &&
-    ci.course === event.course &&
-    ci.date === event.date
-  );
-
-  if (!alreadyCheckedIn) {
-    checkins.push({
-      student: eNumber,
-      course: event.course || "",
-      teacher: event.teacher || "",
-      description: event.description || "",
-      location: event.location || "",
-      date: event.date || "",
-      time: timestamp
-    });
-
-    localStorage.setItem("studentCheckins", JSON.stringify(checkins)); // 🔁 Replace with DB write
-  }
-
-  // Redirect to confirmation screen
-  window.location.href = `confirmation.html?classId=${classId}`;
-}
 </script>
 
 </body>
