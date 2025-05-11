@@ -13,6 +13,7 @@
       height: 100vh;
       margin: 0;
     }
+
     .login-container {
       background-color: white;
       padding: 30px 40px;
@@ -21,9 +22,11 @@
       width: 300px;
       text-align: center;
     }
+
     .login-container h2 {
       margin-bottom: 20px;
     }
+
     .login-container input[type="text"],
     .login-container input[type="password"] {
       width: 100%;
@@ -34,6 +37,7 @@
       font-size: 16px;
       box-sizing: border-box;
     }
+
     .login-container button {
       width: 100%;
       padding: 12px;
@@ -45,23 +49,33 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
+
     .login-container button:hover {
       background-color: #0056b3;
     }
+
     .secondary-btn {
       background-color: #6c757d;
     }
+
     .secondary-btn:hover {
       background-color: #5a6268;
     }
   </style>
 </head>
 <body>
+
   <div class="login-container">
     <h2>Student Check-In</h2>
+    
+    <!--Login input-->
     <input type="text" placeholder="eNumber" id="username" />
     <input type="password" placeholder="Password" id="password" />
+    
+    <!--Submit login-->
     <button onclick="login()">Login</button>
+
+    <!--Go to account creation-->
     <button class="secondary-btn" onclick="goToRegister()">Create New User Account</button>
   </div>
 
@@ -77,10 +91,19 @@
         return;
       }
 
-      // Simulate student authentication
+      // Replace localStorage
+      const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
+      const valid = users.find(u => u.eNumber === username && u.password === password);
+      if (!valid) {
+        alert("Invalid username or password.");
+        return;
+      }
+
+      // Save logged-in user info to session/local storage
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "Student");
 
+      // CONTINUE to check-in page or dashboard
       if (!classId) {
         alert("Missing class ID. Redirecting to dashboard.");
         window.location.href = "student-dashboard.html";
