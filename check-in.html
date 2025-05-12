@@ -44,7 +44,7 @@
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
-  // ✅ Validate login first
+  //Validate login first
   window.addEventListener("DOMContentLoaded", () => {
     const loggedInUser = localStorage.getItem("loggedInUser");
     const role = (localStorage.getItem("role") || "").toLowerCase();
@@ -56,7 +56,7 @@
     }
   });
 
-  // ✅ Standard 12-hour time formatting
+  //Standard 12-hour time formatting
   function formatTimestamp() {
     const now = new Date();
     const yyyy = now.getFullYear();
