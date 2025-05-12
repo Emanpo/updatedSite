@@ -50,16 +50,26 @@
     const role = (localStorage.getItem("role") || "").toLowerCase();
 
     if (!loggedInUser || role !== "student") {
-      // Redirect back to login with original classId
       const params = new URLSearchParams(window.location.search);
       const classId = params.get("classId") || "";
       window.location.href = `student-checkin-login.html?classId=${encodeURIComponent(classId)}`;
     }
   });
 
+  // ✅ Standard 12-hour time formatting
   function formatTimestamp() {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // convert 0 to 12 for 12AM
+
+    return `${yyyy}-${mm}-${dd} ${hours}:${minutes}:${seconds} ${ampm}`;
   }
 
   function submitCheckIn() {
@@ -85,7 +95,7 @@
 
     const timestamp = formatTimestamp();
 
-    // Save to reports (per class)
+    // Save to reports
     let reports = JSON.parse(localStorage.getItem('reports') || '{}');
     if (!reports[classId]) reports[classId] = [];
 
