@@ -13,6 +13,7 @@
       height: 100vh;
       margin: 0;
     }
+
     .login-container {
       background-color: white;
       padding: 30px 40px;
@@ -21,9 +22,11 @@
       width: 300px;
       text-align: center;
     }
+
     .login-container h2 {
       margin-bottom: 20px;
     }
+
     .login-container input[type="text"],
     .login-container input[type="password"] {
       width: 100%;
@@ -34,6 +37,7 @@
       font-size: 16px;
       box-sizing: border-box;
     }
+
     .login-container button {
       width: 100%;
       padding: 12px;
@@ -43,19 +47,32 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
+
     .login-btn {
       background-color: #007bff;
       color: white;
     }
+
     .login-btn:hover {
       background-color: #0056b3;
     }
+
     .secondary-btn {
       background-color: #6c757d;
       color: white;
     }
+
     .secondary-btn:hover {
       background-color: #5a6268;
+    }
+
+    .forgot-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .forgot-btn:hover {
+      background-color: #e0a800;
     }
   </style>
 </head>
@@ -64,12 +81,11 @@
   <div class="login-container">
     <h2>Student Login</h2>
 
-    <!--Login form inputs-->
     <input type="text" placeholder="Username" id="username" />
     <input type="password" placeholder="Password" id="password" />
 
-    <!--Login + Register + Back buttons-->
     <button class="login-btn" onclick="login()">Login</button>
+    <button class="forgot-btn" onclick="forgotPassword()">Forgot Password?</button>
     <button class="secondary-btn" onclick="goToRegister()">Create New User Account</button>
     <button class="secondary-btn" onclick="goBack()">Go Back</button>
   </div>
@@ -95,7 +111,11 @@
     }
 
     function goBack() {
-      window.location.href = "index.html"; // change if your homepage file differs
+      window.location.href = "index.html";
+    }
+
+    function forgotPassword() {
+      alert("Please contact your administrator to reset your password.");
     }
   </script>
 

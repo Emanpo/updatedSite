@@ -42,10 +42,20 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      margin-right: 5px;
     }
 
     .action-btn:hover {
       background-color: #b02a37;
+    }
+
+    .reset-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .reset-btn:hover {
+      background-color: #e0a800;
     }
 
     .back-btn {
@@ -71,6 +81,7 @@
   <thead>
     <tr>
       <th>Username</th>
+      <th>Password</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -86,14 +97,16 @@
 
     tbody.innerHTML = teachers.length
       ? ""
-      : `<tr><td colspan="2" style="text-align:center;">No teacher accounts found.</td></tr>`;
+      : `<tr><td colspan="3" style="text-align:center;">No teacher accounts found.</td></tr>`;
 
     teachers.forEach((teacher, index) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${teacher.username}</td>
+        <td>${teacher.password}</td>
         <td>
           <button class="action-btn" onclick="deleteTeacher(${index})">Delete</button>
+          <button class="action-btn reset-btn" onclick="resetPassword(${index})">Reset Password</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -106,6 +119,17 @@
     let teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
     teachers.splice(index, 1);
     localStorage.setItem("teachers", JSON.stringify(teachers));
+    loadTeachers();
+  }
+
+  function resetPassword(index) {
+    const newPassword = prompt("Enter a new password for this teacher:", "temp1234");
+    if (!newPassword) return;
+
+    let teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
+    teachers[index].password = newPassword;
+    localStorage.setItem("teachers", JSON.stringify(teachers));
+    alert("Password reset successfully.");
     loadTeachers();
   }
 

@@ -65,6 +65,15 @@
     .back-btn:hover {
       background-color: #5a6268;
     }
+
+    .forgot-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .forgot-btn:hover {
+      background-color: #e0a800;
+    }
   </style>
 </head>
 <body>
@@ -75,6 +84,7 @@
     <input type="text" placeholder="Username" id="username" />
     <input type="password" placeholder="Password" id="password" />
     <button class="login-btn" onclick="login()">Login</button>
+    <button class="forgot-btn" onclick="forgotPassword()">Forgot Password?</button>
     <button class="back-btn" onclick="goBack()">Go Back</button>
   </div>
 
@@ -88,7 +98,6 @@
         return;
       }
 
-      // ✅ Check if teacher account was created by admin
       const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
       const teacher = teachers.find(t => t.username === username && t.password === password);
 
@@ -97,16 +106,18 @@
         return;
       }
 
-      // ✅ Save login session info
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "teacher");
 
-      // ✅ Redirect to dashboard
       window.location.href = "teacher-dashboard.html";
     }
 
     function goBack() {
       window.location.href = "index.html";
+    }
+
+    function forgotPassword() {
+      alert("Please contact your administrator to reset your password.");
     }
   </script>
 
