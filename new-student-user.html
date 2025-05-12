@@ -42,16 +42,29 @@
     button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
-      border: none;
-      color: white;
       font-size: 16px;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-bottom: 10px;
     }
 
-    button:hover {
+    .create-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .create-btn:hover {
       background-color: #0056b3;
+    }
+
+    .back-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .back-btn:hover {
+      background-color: #5a6268;
     }
   </style>
 </head>
@@ -65,8 +78,9 @@
     <!--Student password input-->
     <input type="password" id="password" placeholder="Password" />
 
-    <!--Submit button-->
-    <button onclick="register()">Create Account</button>
+    <!--Submit and Go Back buttons-->
+    <button class="create-btn" onclick="register()">Create Account</button>
+    <button class="back-btn" onclick="goBack()">Go Back</button>
   </div>
 
   <script>
@@ -74,28 +88,26 @@
       const eNumber = document.getElementById("eNumber").value.trim();
       const password = document.getElementById("password").value.trim();
 
-      // Basic validation
       if (!eNumber || !password) {
         alert("Please fill in both fields.");
         return;
       }
 
-      // Replace localStorage
       const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
 
-      // Check for duplicates
       if (users.some(user => user.eNumber === eNumber)) {
         alert("An account with this eNumber already exists.");
         return;
       }
 
-      // Add new student account
       users.push({ eNumber, password });
       localStorage.setItem("studentUsers", JSON.stringify(users));
 
       alert("Account created successfully!");
+      window.location.href = "student-login.html";
+    }
 
-      // Redirect to login page
+    function goBack() {
       window.location.href = "student-login.html";
     }
   </script>
