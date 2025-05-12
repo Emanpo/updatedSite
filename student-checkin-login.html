@@ -41,25 +41,42 @@
     .login-container button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
-      border: none;
-      color: white;
       font-size: 16px;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
       margin-bottom: 10px;
     }
 
-    .login-container button:hover {
+    .login-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .login-btn:hover {
       background-color: #0056b3;
     }
 
     .secondary-btn {
       background-color: #6c757d;
+      color: white;
     }
 
     .secondary-btn:hover {
       background-color: #5a6268;
+    }
+
+    .forgot-link {
+      color: #007bff;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .forgot-link:hover {
+      color: #0056b3;
     }
   </style>
 </head>
@@ -67,16 +84,14 @@
 
   <div class="login-container">
     <h2>Student Check-In</h2>
-    
-    <!--Login input-->
+
     <input type="text" placeholder="eNumber" id="username" />
     <input type="password" placeholder="Password" id="password" />
-    
-    <!--Submit login-->
-    <button onclick="login()">Login</button>
 
-    <!--Go to account creation-->
+    <button class="login-btn" onclick="login()">Login</button>
+    <span class="forgot-link" onclick="showHelp()">Forgot Password?</span>
     <button class="secondary-btn" onclick="goToRegister()">Create New User Account</button>
+    <button class="secondary-btn" onclick="goBack()">Go Back</button>
   </div>
 
   <script>
@@ -91,19 +106,17 @@
         return;
       }
 
-      // Replace localStorage
       const users = JSON.parse(localStorage.getItem("studentUsers") || "[]");
-      const valid = users.find(u => u.eNumber === username && u.password === password);
-      if (!valid) {
-        alert("Invalid username or password.");
+      const user = users.find(u => u.eNumber === username && u.password === password);
+
+      if (!user) {
+        alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
         return;
       }
 
-      // Save logged-in user info to session/local storage
       localStorage.setItem("loggedInUser", username);
       localStorage.setItem("role", "Student");
 
-      // CONTINUE to check-in page or dashboard
       if (!classId) {
         alert("Missing class ID. Redirecting to dashboard.");
         window.location.href = "student-dashboard.html";
@@ -112,8 +125,16 @@
       }
     }
 
+    function showHelp() {
+      alert("Invalid credentials or teacher account not found.\nPlease contact your admin.");
+    }
+
     function goToRegister() {
       window.location.href = "new-student-user.html";
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
     }
   </script>
 </body>
