@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Reports</title>
   <style>
-    /*page styling*/
     body {
       background-color: #003366;
       color: white;
@@ -75,19 +74,17 @@
   <tbody></tbody>
 </table>
 
-<!--Go back button-->
-<button onclick="goBack()">Back to Admin Dashboard</button>
+<!--Back Button-->
+<button onclick="goBack()">Back to Table</button>
 
 <script>
 function loadReports() {
   const params = new URLSearchParams(window.location.search);
   const classId = params.get('classId');
 
-  // Replace localStorage
   const reports = JSON.parse(localStorage.getItem('reports') || '{}');
   const students = reports[classId] || [];
 
-  // Replace localStorage
   const allEvents = [
     ...JSON.parse(localStorage.getItem('adminTable') || '[]'),
     ...JSON.parse(localStorage.getItem('events') || '[]')
@@ -95,7 +92,6 @@ function loadReports() {
   const classEvent = allEvents.find(e => e.id === classId);
   const className = classEvent ? (classEvent.course || classEvent.name || 'Unknown') : 'Unknown';
 
-  // Populate table
   const tbody = document.querySelector("#reportTable tbody");
   tbody.innerHTML = "";
 
@@ -114,7 +110,15 @@ function loadReports() {
 }
 
 function goBack() {
-  window.location.href = "admin-dashboard.html";
+  const role = (localStorage.getItem("role") || "").toLowerCase();
+  if (role === "admin") {
+    window.location.href = "admin-class-view.html";
+  } else if (role === "teacher") {
+    window.location.href = "library.html";
+  } else {
+    alert("Access denied. Role not recognized.");
+    window.location.href = "index.html";
+  }
 }
 
 window.onload = loadReports;
