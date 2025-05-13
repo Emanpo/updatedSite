@@ -82,9 +82,13 @@
 </head>
 <body>
 
+<!-- Form container -->
 <div class="event-form-container">
   <div class="form-title">Create Class Form</div>
+
+  <!-- Class creation form -->
   <form id="createEventForm">
+    <!-- Dropdown for loading saved templates -->
     <div class="form-group">
       <label for="template">Use Class Template</label>
       <select id="template">
@@ -92,6 +96,7 @@
       </select>
     </div>
 
+    <!-- Remaining inputs for class metadata -->
     <div class="form-group">
       <label for="teacher">Teacher</label>
       <input type="text" id="teacher" name="teacher" required />
@@ -121,6 +126,7 @@
       <input type="date" id="date" name="date" required />
     </div>
 
+    <!-- Form buttons -->
     <div class="form-actions">
       <button type="submit" class="submit-btn">Submit</button>
       <button type="reset" class="clear-btn">Clear</button>
@@ -134,7 +140,8 @@
   const rosterInput = document.getElementById("roster");
   const fileLabel = document.getElementById("fileLabel");
 
-  // Load templates into dropdown
+  // Load saved class templates from localStorage
+  // Replace with API call
   window.addEventListener("DOMContentLoaded", () => {
     const templates = JSON.parse(localStorage.getItem("classTemplates") || "[]");
 
@@ -151,7 +158,7 @@
     });
   });
 
-  // Fill form when template is selected
+  // Autofill fields when a template is selected
   templateSelect.addEventListener("change", function () {
     const selected = this.options[this.selectedIndex];
     document.getElementById("teacher").value = selected.dataset.teacher || "";
@@ -169,6 +176,8 @@
     }
   });
 
+  // Go back to the dashboard based on role stored in localStorage
+  // Replace with API call
   function goBack() {
     const role = localStorage.getItem("role") || "";
     if (role === "Admin") {
@@ -178,6 +187,8 @@
     }
   }
 
+  // determine role, create event, and store it
+  // Replace with API call
   document.getElementById("createEventForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -190,6 +201,8 @@
     const templateBase64 = rosterInput.dataset.base64;
     const templateFilename = rosterInput.dataset.filename;
 
+    // Get user role to assign and determine which storage
+    // Replace with API call
     const rawRole = localStorage.getItem("role") || "Unknown";
     const role = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
 
@@ -212,6 +225,8 @@
         createdBy: role
       };
 
+      // Store created event locally based on role
+      // Replace with API call
       if (role === "Admin") {
         const adminEvents = JSON.parse(localStorage.getItem("adminTable") || "[]");
         adminEvents.push(newEvent);
@@ -223,6 +238,8 @@
       }
 
       alert("Class created successfully!");
+
+      // Go to QR page and pass event data
       const params = new URLSearchParams({
         id: newEvent.id,
         course: newEvent.course,
@@ -235,6 +252,7 @@
       window.location.href = "QR-display.html?" + params.toString();
     };
 
+    // If uploading a file, convert to base64 before saving
     if (uploadedFile) {
       const reader = new FileReader();
       reader.onload = function (event) {
