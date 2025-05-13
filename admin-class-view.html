@@ -4,34 +4,29 @@
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
   <style>
-    /*Styling for the dashboard*/
     body {
       background-color: #003366;
       font-family: Arial, sans-serif;
       padding: 20px;
       color: white;
     }
-
     h1 {
       text-align: center;
       margin-bottom: 10px;
       font-size: 36px;
     }
-
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
-
     .search-container input {
       padding: 8px;
       font-size: 16px;
       border-radius: 5px;
       border: none;
     }
-
     table {
       width: 100%;
       background: white;
@@ -39,30 +34,24 @@
       border-collapse: collapse;
       margin-top: 20px;
     }
-
     table, th, td {
       border: 1px solid #ddd;
     }
-
     th, td {
       padding: 12px;
       text-align: center;
     }
-
     th {
       background-color: #004080;
       color: white;
       cursor: pointer;
       text-decoration: underline;
     }
-
     tr:hover {
       background-color: #f1f1f1;
     }
-
     .admin-row { background-color: #e6f7ff; }
     .teacher-row { background-color: #fff0e6; }
-
     .button-group {
       margin-top: 20px;
       display: flex;
@@ -70,7 +59,6 @@
       justify-content: center;
       flex-wrap: wrap;
     }
-
     .button-group button {
       padding: 10px 20px;
       font-size: 16px;
@@ -78,17 +66,14 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     #addEventBtn, #downloadBtn {
       background-color: #28a745;
       color: white;
     }
-
     #logOffBtn {
       background-color: #dc3545;
       color: white;
     }
-
     .action-buttons button {
       margin: 2px;
       padding: 5px 10px;
@@ -99,7 +84,6 @@
 </head>
 <body>
 
-<!-- Dashboard Header and Search Bar-->
 <div class="top-bar">
   <h1>Admin Class Table</h1>
   <div class="search-container">
@@ -107,7 +91,6 @@
   </div>
 </div>
 
-<!--Table to Display Classes-->
 <table id="adminTable">
   <thead>
     <tr>
@@ -119,13 +102,13 @@
       <th onclick="sortTableBy(5)">Date</th>
       <th>Created By</th>
       <th>Checked In</th>
+      <th>QR Code</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
-<!--Buttons Below the Table-->
 <div class="button-group">
   <button id="addEventBtn" onclick="window.location.href='create-event.html'">Add Class</button>
   <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
@@ -133,16 +116,12 @@
 </div>
 
 <script>
-/*Load and Display Events in Table*/
 function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
 
-  // REPLACE WITH DB FETCH ---------------------------------------------------
   const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-  // --------------------------------------------------------------------------
-
   const allEvents = [...adminEvents, ...teacherEvents];
 
   allEvents.forEach(event => {
@@ -163,6 +142,7 @@ function loadEvents() {
       <td contenteditable="false">${event.date || ""}</td>
       <td>${event.createdBy || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
+      <td><button onclick="viewQR('${event.id}')">QR</button></td>
       <td class="action-buttons">
         <button onclick="toggleEdit(this)">Edit</button>
         <button onclick="deleteEvent('${event.id}')">Delete</button>
@@ -172,13 +152,10 @@ function loadEvents() {
   });
 }
 
-/*Sort Table by Column*/
-let sortDirection = {};
 function sortTableBy(columnIndex) {
   const table = document.getElementById("adminTable");
   const tbody = table.querySelector("tbody");
   const rows = Array.from(tbody.querySelectorAll("tr"));
-
   const direction = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
   sortDirection[columnIndex] = direction;
 
@@ -194,7 +171,8 @@ function sortTableBy(columnIndex) {
   rows.forEach(row => tbody.appendChild(row));
 }
 
-/*Edit Mode for a Row*/
+let sortDirection = {};
+
 function toggleEdit(btn) {
   const row = btn.closest("tr");
   const isEditing = btn.textContent === "Save";
@@ -212,21 +190,17 @@ function toggleEdit(btn) {
       createdBy: cells[6].innerText.trim()
     };
 
-    // REPLACE WITH DB FETCH ---------------------------------------------------
     let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
     let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-    //--------------------------------------------------------------------------
 
     let found = false;
     adminEvents = adminEvents.map(e => (e.id === id ? (found = true, { ...e, ...updatedEvent }) : e));
     if (!found) {
       teacherEvents = teacherEvents.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
     }
-    // REPLACE WITH DB FETCH ---------------------------------------------------
+
     localStorage.setItem('adminTable', JSON.stringify(adminEvents));
     localStorage.setItem('events', JSON.stringify(teacherEvents));
-    //--------------------------------------------------------------------------
-    alert("Changes saved!");
 
     [0, 1, 2, 4, 5].forEach(i => {
       cells[i].contentEditable = "false";
@@ -234,6 +208,7 @@ function toggleEdit(btn) {
     });
 
     btn.textContent = "Edit";
+    alert("Changes saved!");
   } else {
     [0, 1, 2, 4, 5].forEach(i => {
       cells[i].contentEditable = "true";
@@ -244,36 +219,34 @@ function toggleEdit(btn) {
   }
 }
 
-/*Delete Class*/
 function deleteEvent(id) {
   if (!confirm("Are you sure you want to delete this event?")) return;
 
-  // REPLACE WITH DB FETCH ---------------------------------------------------
   let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
-  //--------------------------------------------------------------------------
+
   adminEvents = adminEvents.filter(e => e.id !== id);
   teacherEvents = teacherEvents.filter(e => e.id !== id);
-  // REPLACE WITH DB FETCH ---------------------------------------------------
+
   localStorage.setItem('adminTable', JSON.stringify(adminEvents));
   localStorage.setItem('events', JSON.stringify(teacherEvents));
-  //--------------------------------------------------------------------------
+
   loadEvents();
   alert("Event deleted successfully!");
 }
 
-/*Redirect to Reports Page*/
 function viewCheckIns(id) {
   window.location.href = `reports.html?classId=${id}`;
 }
 
-/*Download Roster File*/
+function viewQR(id) {
+  window.location.href = `qr-display.html?id=${id}`;
+}
+
 function downloadRoster(id) {
-  // REPLACE WITH DB FETCH ---------------------------------------------------
   const allEvents = [
     ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
     ...JSON.parse(localStorage.getItem('events') || "[]")
-  //--------------------------------------------------------------------------
   ];
   const event = allEvents.find(e => e.id === id);
   if (event && event.rosterFileBase64) {
@@ -284,17 +257,12 @@ function downloadRoster(id) {
   }
 }
 
-/*Table Data as CSV*/
 function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
-
-  // REPLACE WITH DB FETCH ---------------------------------------------------
   const events = [
     ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
     ...JSON.parse(localStorage.getItem('events') || "[]")
-  //--------------------------------------------------------------------------
   ];
-
   events.forEach(e => {
     csv += `"${e.teacher || "Unknown"}","${e.course || "Unknown"}","${e.description || ""}","${e.rosterFilename || ""}","${e.location || ""}","${e.date || ""}","${e.createdBy || "Teacher"}"\n`;
   });
@@ -308,7 +276,6 @@ function downloadCSV() {
   URL.revokeObjectURL(url);
 }
 
-/*Search Function*/
 function filterTable() {
   const input = document.getElementById("searchInput").value.toLowerCase();
   document.querySelectorAll("#adminTable tbody tr").forEach(row => {
@@ -317,12 +284,10 @@ function filterTable() {
   });
 }
 
-/*Log Out*/
 function goBack() {
   window.location.href = "admin-dashboard.html";
 }
 
-/*Load on Page Ready*/
 window.onload = loadEvents;
 </script>
 
