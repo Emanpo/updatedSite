@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
   <style>
+    /*Page styling*/
     body {
       background-color: #003366;
       font-family: Arial, sans-serif;
@@ -105,6 +106,7 @@
   </div>
 </div>
 
+<!--Table for classes-->
 <table id="adminTable">
   <thead>
     <tr>
@@ -123,6 +125,7 @@
   <tbody></tbody>
 </table>
 
+<!--Buttons-->
 <div class="button-group">
   <button id="addEventBtn" onclick="window.location.href='create-event.html'">Add Class</button>
   <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
@@ -130,10 +133,13 @@
 </div>
 
 <script>
+/** Load events from localStorage and populate the table
+ *  Replace with API calls*/
 function loadEvents() {
   const tbody = document.querySelector("#adminTable tbody");
   tbody.innerHTML = "";
 
+  // Replace with API calls
   const adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   const teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
   const allEvents = [...adminEvents, ...teacherEvents];
@@ -166,10 +172,12 @@ function loadEvents() {
   });
 }
 
+// Open QR page
 function viewQr(id) {
   window.location.href = `QR-display.html?id=${id}&from=admin`;
 }
 
+// Table column sorting
 let sortDirection = {};
 function sortTableBy(columnIndex) {
   const table = document.getElementById("adminTable");
@@ -182,15 +190,20 @@ function sortTableBy(columnIndex) {
   rows.sort((a, b) => {
     const textA = a.cells[columnIndex].innerText.trim().toLowerCase();
     const textB = b.cells[columnIndex].innerText.trim().toLowerCase();
-    if (!isNaN(Date.parse(textA)) && !isNaN(Date.parse(textB))) {
+    const isDateA = !isNaN(Date.parse(textA));
+    const isDateB = !isNaN(Date.parse(textB));
+
+    if (isDateA && isDateB) {
       return direction === 'asc' ? new Date(textA) - new Date(textB) : new Date(textB) - new Date(textA);
     }
+
     return direction === 'asc' ? textA.localeCompare(textB) : textB.localeCompare(textA);
   });
 
   rows.forEach(row => tbody.appendChild(row));
 }
 
+// Toggle Edit Mode
 function toggleEdit(btn) {
   const row = btn.closest("tr");
   const isEditing = btn.textContent === "Save";
@@ -208,6 +221,7 @@ function toggleEdit(btn) {
       createdBy: cells[6].innerText.trim()
     };
 
+    // Replace with update to database
     let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
     let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
 
@@ -217,8 +231,10 @@ function toggleEdit(btn) {
       teacherEvents = teacherEvents.map(e => (e.id === id ? { ...e, ...updatedEvent } : e));
     }
 
+    // Replace with API calls to save
     localStorage.setItem('adminTable', JSON.stringify(adminEvents));
     localStorage.setItem('events', JSON.stringify(teacherEvents));
+
     alert("Changes saved!");
 
     [0, 1, 2, 4, 5].forEach(i => {
@@ -237,9 +253,11 @@ function toggleEdit(btn) {
   }
 }
 
+// Delete an event
 function deleteEvent(id) {
   if (!confirm("Are you sure you want to delete this event?")) return;
 
+  // Replace with API call
   let adminEvents = JSON.parse(localStorage.getItem('adminTable') || "[]");
   let teacherEvents = JSON.parse(localStorage.getItem('events') || "[]");
 
@@ -253,11 +271,14 @@ function deleteEvent(id) {
   alert("Event deleted successfully!");
 }
 
+// View check-in report for class
 function viewCheckIns(id) {
   window.location.href = `reports.html?classId=${id}`;
 }
 
+// Download class roster file
 function downloadRoster(id) {
+  // Replace with API call
   const allEvents = [
     ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
     ...JSON.parse(localStorage.getItem('events') || "[]")
@@ -271,8 +292,11 @@ function downloadRoster(id) {
   }
 }
 
+// Download table data as CSV
 function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
+
+  // Replace with API call
   const events = [
     ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
     ...JSON.parse(localStorage.getItem('events') || "[]")
@@ -291,6 +315,7 @@ function downloadCSV() {
   URL.revokeObjectURL(url);
 }
 
+// Filter table by keyword
 function filterTable() {
   const input = document.getElementById("searchInput").value.toLowerCase();
   document.querySelectorAll("#adminTable tbody tr").forEach(row => {
@@ -299,10 +324,12 @@ function filterTable() {
   });
 }
 
+// Go back to dashboard
 function goBack() {
   window.location.href = "admin-dashboard.html";
 }
 
+// Initial load
 window.onload = loadEvents;
 </script>
 
