@@ -156,7 +156,7 @@ function loadEvents() {
       <td contenteditable="false">${event.date || ""}</td>
       <td>${event.createdBy || "Teacher"}</td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
-      <td><a href="QR-display.html?id=${event.id}&from=admin" target="_self">QR</a></td>
+      <td><button onclick="viewQr('${event.id}')" style="background-color:#007bff;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;">QR</button></td>
       <td class="action-buttons">
         <button onclick="toggleEdit(this)">Edit</button>
         <button onclick="deleteEvent('${event.id}')">Delete</button>
@@ -164,6 +164,10 @@ function loadEvents() {
     `;
     tbody.appendChild(tr);
   });
+}
+
+function viewQr(id) {
+  window.location.href = `QR-display.html?id=${id}&from=admin`;
 }
 
 let sortDirection = {};
@@ -269,7 +273,6 @@ function downloadRoster(id) {
 
 function downloadCSV() {
   let csv = "Teacher,Course,Description,Roster,Location,Date,Created By\n";
-
   const events = [
     ...JSON.parse(localStorage.getItem('adminTable') || "[]"),
     ...JSON.parse(localStorage.getItem('events') || "[]")
