@@ -82,7 +82,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
-      const from = params.get('from'); // from=admin
+      const from = params.get('from'); // e.g., from=admin or from=teacher
 
       const checkInUrl = `student-checkin-login.html?classId=${encodeURIComponent(id)}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkInUrl)}`;
@@ -123,11 +123,13 @@
         document.body.removeChild(link);
       });
 
-      // Set up conditional button
       const actionBtn = document.getElementById("actionBtn");
-      if (from === "admin") {
+
+      if (from === "admin" || from === "teacher") {
         actionBtn.textContent = "Go Back";
-        actionBtn.onclick = () => window.location.href = "admin-class-view.html";
+        actionBtn.onclick = () => {
+          window.location.href = from === "admin" ? "admin-class-view.html" : "library.html";
+        };
       } else {
         actionBtn.textContent = "Continue";
         actionBtn.onclick = () => {

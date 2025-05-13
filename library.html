@@ -124,6 +124,7 @@
       <th>Roster</th>
       <th onclick="sortTableBy(3)">Location</th>
       <th onclick="sortTableBy(4)">Date</th>
+      <th>QR Code</th>
       <th>Checked In</th>
       <th>Actions</th>
     </tr>
@@ -160,6 +161,7 @@ function loadEvents() {
       <td>${rosterCell}</td>
       <td>${event.location || ""}</td>
       <td>${event.date || ""}</td>
+      <td><button onclick="showQRCode('${event.id}')">QR Code</button></td>
       <td><button onclick="viewCheckIns('${event.id}')">View</button></td>
       <td class="action-buttons">
         <button onclick="toggleEdit(this)">Edit</button>
@@ -168,6 +170,10 @@ function loadEvents() {
     `;
     tbody.appendChild(row);
   });
+}
+
+function showQRCode(id) {
+  window.location.href = `qr-display.html?id=${encodeURIComponent(id)}&from=teacher`;
 }
 
 function sortTableBy(columnIndex) {
@@ -195,7 +201,7 @@ function sortTableBy(columnIndex) {
 
 function toggleEdit(button) {
   const row = button.closest("tr");
-  const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-last-child(2)):not(:nth-child(3))");
+  const editableCells = row.querySelectorAll("td:not(:last-child):not(:nth-last-child(2)):not(:nth-child(3)):not(:nth-child(6))");
   const isEditing = button.textContent === "Save";
 
   if (isEditing) {
