@@ -44,10 +44,10 @@
 <button onclick="submitCheckIn()">Submit</button>
 
 <script>
-  //Validate login first
+  // Enforce login check before check-in
   window.addEventListener("DOMContentLoaded", () => {
-    const loggedInUser = localStorage.getItem("loggedInUser");
-    const role = (localStorage.getItem("role") || "").toLowerCase();
+    const loggedInUser = localStorage.getItem("loggedInUser");  // ⛔️ Replace with session check (cookie/token)
+    const role = (localStorage.getItem("role") || "").toLowerCase();  // ⛔️ Replace with backend role check
 
     if (!loggedInUser || role !== "student") {
       const params = new URLSearchParams(window.location.search);
@@ -56,7 +56,7 @@
     }
   });
 
-  //Standard 12-hour time formatting
+  // Format current date/time in standard 12-hour format
   function formatTimestamp() {
     const now = new Date();
     const yyyy = now.getFullYear();
@@ -67,11 +67,12 @@
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12; // convert 0 to 12 for 12AM
+    hours = hours % 12 || 12;
 
     return `${yyyy}-${mm}-${dd} ${hours}:${minutes}:${seconds} ${ampm}`;
   }
 
+  // Handles check-in process
   function submitCheckIn() {
     const eNumber = document.getElementById('eNumberInput').value.trim();
     const params = new URLSearchParams(window.location.search);
@@ -82,6 +83,7 @@
       return;
     }
 
+    // Replace with API call
     const allEvents = [
       ...JSON.parse(localStorage.getItem("adminTable") || "[]"),
       ...JSON.parse(localStorage.getItem("events") || "[]")
@@ -95,7 +97,8 @@
 
     const timestamp = formatTimestamp();
 
-    // Save to reports
+    // Save to class-specific report
+    // Replace with API call
     let reports = JSON.parse(localStorage.getItem('reports') || '{}');
     if (!reports[classId]) reports[classId] = [];
 
@@ -104,7 +107,8 @@
       localStorage.setItem('reports', JSON.stringify(reports));
     }
 
-    // Save to studentCheckins
+    // Save to overall student check-ins
+    // Replace with API call
     const checkins = JSON.parse(localStorage.getItem("studentCheckins") || "[]");
     if (!checkins.some(ci => ci.student === eNumber && ci.course === event.course && ci.date === event.date)) {
       checkins.push({
@@ -119,6 +123,7 @@
       localStorage.setItem("studentCheckins", JSON.stringify(checkins));
     }
 
+    // Redirect to confirmation page
     window.location.href = `confirmation.html?classId=${classId}`;
   }
 </script>
