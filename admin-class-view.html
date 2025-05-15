@@ -1,21 +1,27 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
   <style>
-    /*Page styling*/
     body {
-      background-color: #003366;
-      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #003366, #002244);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
       color: white;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
-      font-size: 36px;
+      margin-bottom: 20px;
+      font-size: 40px;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+      letter-spacing: 1px;
     }
 
     .top-bar {
@@ -23,13 +29,16 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .search-container input {
-      padding: 8px;
+      padding: 10px;
       font-size: 16px;
-      border-radius: 5px;
+      border-radius: 8px;
       border: none;
+      width: 250px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     table {
@@ -38,6 +47,9 @@
       color: black;
       border-collapse: collapse;
       margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     table, th, td {
@@ -45,8 +57,9 @@
     }
 
     th, td {
-      padding: 12px;
+      padding: 14px;
       text-align: center;
+      font-size: 16px;
     }
 
     th {
@@ -54,29 +67,39 @@
       color: white;
       cursor: pointer;
       text-decoration: underline;
+      transition: background-color 0.3s ease;
+    }
+
+    th:hover {
+      background-color: #0055aa;
     }
 
     tr:hover {
-      background-color: #f1f1f1;
+      background-color: #f0f0f0;
     }
 
-    .admin-row { background-color: #e6f7ff; }
-    .teacher-row { background-color: #fff0e6; }
+    .admin-row { background-color: #e1f0ff; }
+    .teacher-row { background-color: #ffe8d9; }
 
     .button-group {
-      margin-top: 20px;
+      margin-top: 25px;
       display: flex;
-      gap: 10px;
+      gap: 15px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
     .button-group button {
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+
+    .button-group button:hover {
+      transform: scale(1.05);
     }
 
     #addEventBtn, #downloadBtn {
@@ -84,55 +107,69 @@
       color: white;
     }
 
+    #addEventBtn:hover, #downloadBtn:hover {
+      background-color: #218838;
+    }
+
     #logOffBtn {
       background-color: #dc3545;
       color: white;
     }
 
+    #logOffBtn:hover {
+      background-color: #c82333;
+    }
+
     .action-buttons button {
-      margin: 2px;
-      padding: 5px 10px;
+      margin: 4px;
+      padding: 8px 12px;
       font-size: 14px;
-      border-radius: 5px;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .action-buttons button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <h1>Admin Class Table</h1>
-  <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+  <div class="top-bar">
+    <h1>Admin Class Table</h1>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+    </div>
   </div>
-</div>
 
-<!--Table for classes-->
-<table id="adminTable">
-  <thead>
-    <tr>
-      <th onclick="sortTableBy(0)">Teacher</th>
-      <th onclick="sortTableBy(1)">Course</th>
-      <th>Description</th>
-      <th>Roster</th>
-      <th>Location</th>
-      <th onclick="sortTableBy(5)">Date</th>
-      <th>Created By</th>
-      <th>Checked In</th>
-      <th>QR Code</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <table id="adminTable">
+    <thead>
+      <tr>
+        <th onclick="sortTableBy(0)">Teacher</th>
+        <th onclick="sortTableBy(1)">Course</th>
+        <th>Description</th>
+        <th>Roster</th>
+        <th>Location</th>
+        <th onclick="sortTableBy(5)">Date</th>
+        <th>Created By</th>
+        <th>Checked In</th>
+        <th>QR Code</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<!--Buttons-->
-<div class="button-group">
-  <button id="addEventBtn" onclick="window.location.href='create-event.html'">Add Class</button>
-  <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
-  <button id="logOffBtn" onclick="goBack()">Go Back</button>
-</div>
-
+  <div class="button-group">
+    <button id="addEventBtn" onclick="window.location.href='create-event.html'">Add Class</button>
+    <button id="downloadBtn" onclick="downloadCSV()">Download CSV</button>
+    <button id="logOffBtn" onclick="goBack()">Go Back</button>
+  </div>
 <script>
+
 /** Load events from localStorage and populate the table
  *  Replace with API calls*/
 function loadEvents() {
